@@ -87,11 +87,13 @@
             "min_eigen_threshold": 0.001
         },
         "lines" : [
-            582,
-            423,
-            282,
-            82
-        ]
+            600,
+            1200,
+            1700,
+            2300
+        ],
+        "lines_width": 150,
+        "resize_factor": 0.5
     },
     "stiv": {
         "window_shape": [51, 51],
@@ -123,4 +125,3 @@
         ]
     }
 }
-

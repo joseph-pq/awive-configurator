@@ -1,16 +1,23 @@
-[tool.poetry]
-name = "awivec"
+[project]
+name = "awive-configurator"
 version = "0.1.0"
 description = ""
-authors = ["Joseph P. <joseph.pena.q@gmail.com>"]
+authors = [{ name = "Joseph P.", email = "joseph.pena.q@gmail.com" }]
 readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "awive>=2.0.0",
+    "npyplotter",
+]
 
-[tool.poetry.dependencies]
-python = "~3.11.2"
-npyplotter = {git = "https://github.com/JosephPenaQuino/npy-plotter.git"}
-awive = "^2.0.0"
-
+[dependency-groups]
+dev = [
+    "debugpy>=1.8.5",
+]
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+[tool.uv.sources]
+npyplotter = { git = "https://github.com/joseph-pq/npy-plotter.git" }

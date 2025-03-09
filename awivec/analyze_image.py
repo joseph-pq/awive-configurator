@@ -1,15 +1,18 @@
 """Analyze image savig it as numpy file."""
 
 import argparse
+import logging
 
+from awive.config import Config
+from awive.correct_image import Formatter
+from awive.loader import Loader, make_loader
 import cv2
 import matplotlib.pyplot as plt
 from npyplotter.plot_npy import picshow
 import numpy as np
 
-from awive.correct_image import Formatter
-from awive.loader import Loader, make_loader
-from awive.config import Config
+
+LOG = logging.getLogger(__name__)
 
 
 def main(
@@ -37,7 +40,7 @@ def main(
         cv2.imwrite("image.png", image)
     np.save("tmp.npy", image)
     if plot:
-        print("Plotting image")
+        LOG.info("Plotting image")
         picshow([image])
         plt.show()
 
@@ -86,7 +89,21 @@ if __name__ == "__main__":
         "--plot",
         action="store_true",
         help="Plot output image")
+    parser.add_argument(
+        "-d",
+        "--debug",
+        action="store_true",
+        help="Enable debug mode"
+    )
     args = parser.parse_args()
+    logging.getLogger("matplotlib.font_manager").disabled = True
+    logging.getLogger("PIL.PngImagePlugin").disabled = True
+    logging.getLogger("matplotlib.pyplot").disabled = True
+    logging.basicConfig(
+        level=logging.DEBUG if args.debug else logging.INFO,
+        format="%(asctime)s | %(levelname).1s | %(name).20s | %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
     main(
         config_path=args.config_path,
         entire_frame=args.frame,

@@ -36,7 +36,7 @@ def play(
         if blur:
             image = cv2.medianBlur(image, 5)
         if resize:
-            lil_im = cv2.resize(image, (1000, 1000))
+            lil_im = cv2.resize(image, (800, 800))
         else:
             lil_im = image
         cv2.imshow('Video', lil_im)

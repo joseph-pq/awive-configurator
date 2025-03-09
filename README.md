@@ -15,16 +15,16 @@ This software was tested in:
 
 ### Installation
 
-If you are using pyenv and poetry, execute the commands below:
+If you are using uv, execute the commands below:
 
-```
-pyenv local 3.11.2
-poetry install
+```bash
+uv sync
+source .venv/bin/activate
 ```
 
 Otherwise, excute these commands:
 
-```
+```bash
 python -m venv venv
 source venv/bin/activate
 python -m pip install .
@@ -56,7 +56,7 @@ Firstly, set both previous paths in the `config.json` in the keys
 
 Then, execute the command below to just visualize a frame from the video:
 
-```
+```bash
 python -m awivec.analyze_image config.json -P
 ```
 

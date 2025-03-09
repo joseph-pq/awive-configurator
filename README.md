@@ -62,7 +62,9 @@ python -m awivec.analyze_image config.json -P
 
 It should display some image like the one shown below:
 
-![]()
+<center>
+    <img src="docs/images/river-frame.jpg">
+</center>
 
 
 Probably the displayed image is not suitable for any of AWIVE velocimetry
@@ -77,18 +79,60 @@ parameters of the `config.json` file:
 
 #### 1. Orthorectification
 
-The orthorectification pre-processing is necessary when the images in the video
-are not distorted due to the camera's location, which means the camera that
-recorded the video was not positioned in front of the river.
+Orthorectification pre-processing is necessary when the images in the video
+are distorted due to the camera's position. This occurs when the camera
+recording the video was not placed directly in front of the river.
 
 To calibreate the orthorectification parameters there are required four
 ground-control-points (GCPs).
 
+Visualize the image:
+
+```bash
+python -m awivec.analyze_image config.json -P
+```
+
+Identify the 4 GPCs and save them in the `config.json` file. The keys are
+`dataset.gcp.pixels`. The order of the GCPs in the list must be in clockwise
+order starting from the top-left corner.
+
+Determine the coordinates of the GCPs in the real world and save them in the
+`config.json` file. The keys are `dataset.gcp.meters`. The order of the
+coordinates in the list must be the same as the order of the GCPs in the
+`dataset.gcp.pixels` key.
+
+If you only have the distances between the GCPs, you can use the `awivec.from_distances`
+script:
+
+```bash
+python -m awivec.from_distances
+```
+
+Then enable gcp by setting `True` in the `dataset.gcp.enable`.
+
+Finally, run the command below to visualize the orthorectified image:
+
+```bash
+```
+python -m awivec.analyze_image config.json -P -u
+
+
 #### 2. Pre-Region of Interest
+
+To avoid processing unnecessary information, it is recommended to define a
+pre-region of interest. This region is used to crop the image before applying
+the AWIVE velocimetry algorithms.
 
 
 #### 3. Image rotation
 
+Modify `preprocessing.rotate` key in the `config.json` file to adjust the
+rotation of the image until the river flow goes from left to right.
+
+Use this command to show river flow:
+```bash
+python -m awivec.video config.json -u -r -z
+```
 
 #### 4. Region of Interest
 

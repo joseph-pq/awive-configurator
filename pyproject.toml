@@ -8,11 +8,18 @@ requires-python = ">=3.11"
 dependencies = [
     "awive>=2.0.0",
     "npyplotter",
+    "scipy>=1.15.2",
+    "typer>=0.15.2",
 ]
 
 [dependency-groups]
 dev = [
     "debugpy>=1.8.5",
+    "ipython>=9.0.2",
+    "matplotlib>=3.10.1",
+    "pyfzf>=0.3.1",
+    "pyqt6>=6.8.1",
+    "tk>=0.1.0",
 ]
 
 [build-system]
@@ -21,3 +28,6 @@ build-backend = "pdm.backend"
 
 [tool.uv.sources]
 npyplotter = { git = "https://github.com/joseph-pq/npy-plotter.git" }
+
+[tool.mypy]
+exclude = ".venv/"

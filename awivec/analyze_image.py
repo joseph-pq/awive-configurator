@@ -21,7 +21,7 @@ def main(
     undistort=True,
     roi=True,
     get_frame=True,
-    plot=False
+    plot=False,
 ) -> None:
     """Save the first image as numpy file."""
     config = Config.from_json(config_path)
@@ -65,36 +65,23 @@ if __name__ == "__main__":
         help="Path to configuration file path",
     )
     parser.add_argument(
-        "-f",
-        "--frame",
-        action="store_true",
-        help="Plot entire frame or not")
+        "-f", "--frame", action="store_true", help="Plot entire frame or not"
+    )
     parser.add_argument(
         "-u",
         "--undistort",
         action="store_true",
-        help="Format image using distortion correction")
-    parser.add_argument(
-        "-g",
-        "--getframe",
-        action="store_true",
-        help="Get first frame")
+        help="Format image using distortion correction",
+    )
+    parser.add_argument("-g", "--getframe", action="store_true", help="Get first frame")
     parser.add_argument(
         "-r",
         "--roi",
         action="store_true",
-        help="Format image using selecting only roi area")
-    parser.add_argument(
-        "-P",
-        "--plot",
-        action="store_true",
-        help="Plot output image")
-    parser.add_argument(
-        "-d",
-        "--debug",
-        action="store_true",
-        help="Enable debug mode"
+        help="Format image using selecting only roi area",
     )
+    parser.add_argument("-P", "--plot", action="store_true", help="Plot output image")
+    parser.add_argument("-d", "--debug", action="store_true", help="Enable debug mode")
     args = parser.parse_args()
     logging.getLogger("matplotlib.font_manager").disabled = True
     logging.getLogger("PIL.PngImagePlugin").disabled = True
@@ -110,5 +97,5 @@ if __name__ == "__main__":
         undistort=args.undistort,
         roi=args.roi,
         get_frame=args.getframe,
-        plot=args.plot
+        plot=args.plot,
     )

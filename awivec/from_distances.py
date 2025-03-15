@@ -43,8 +43,11 @@ for coord in coords:
     min_x = min(coord[0], min_x)
     min_y = min(coord[1], min_y)
 print(f"{min_x=}, {min_y}")
-coords = list(map(lambda x: [float(round(x[0]-min_x, 2)), float(round(x[1]-min_y, 2))], coords))
+coords = list(
+    map(
+        lambda x: [float(round(x[0] - min_x, 2)), float(round(x[1] - min_y, 2))], coords
+    )
+)
 print("updated")
 for coord in coords:
     print(coord)
-

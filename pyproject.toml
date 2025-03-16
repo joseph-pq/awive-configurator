@@ -6,7 +6,7 @@ authors = [{ name = "Joseph P.", email = "joseph.pena.q@gmail.com" }]
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "awive>=2.0.0",
+    "awive>=3.0.0,<4.0.0",
     "npyplotter",
     "scipy>=1.15.2",
     "typer>=0.15.2",

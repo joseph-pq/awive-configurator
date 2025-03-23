@@ -28,7 +28,10 @@ import SaveIcon from "@mui/icons-material/Save";
 
 const ZOOM_SCALE = 2;
 
-export default function OrthorectificationView({ handlePrev, handleNext }) {
+export default function OrthorectificationView({
+  handlePrev,
+  handleNext: handleNextRoot,
+}) {
   const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false); // Track if a GCP is being dragged
   const [openDistanceDialog, setOpenDistanceDialog] = useState(false); // Distance dialog visibility
@@ -43,6 +46,20 @@ export default function OrthorectificationView({ handlePrev, handleNext }) {
     setDistances,
   } = useContext(ImagesContext);
 
+  const handleNext = () => {
+    if (Object.keys(gcpPoints).length != 4) {
+      alert("Please select 4 GCPs before proceeding");
+      return;
+    }
+    // check all distances are not 0
+    for (let i = 0; i < distances.length; i++) {
+      if (distances[i].distance === 0) {
+        alert("Please enter all distances before proceeding");
+        return;
+      }
+    }
+    handleNextRoot();
+  };
   // Handle GCP selection
   const handleCanvasClick = (e) => {
     const stage = e.target.getStage();
@@ -163,9 +180,14 @@ export default function OrthorectificationView({ handlePrev, handleNext }) {
 
   return (
     <Container sx={{ textAlign: "center", mt: 4 }}>
-      <Button variant="contained" onClick={handlePrev} sx={{ mx: 1 }}>
-        Previous
-      </Button>
+      <Box sx={{ flexGrow: 1 }}>
+        <Button variant="contained" onClick={handlePrev} sx={{ mx: 1 }}>
+          Previous
+        </Button>
+        <Button variant="contained" onClick={handleNext} sx={{ mx: 1 }}>
+          Next
+        </Button>
+      </Box>
       <Box mt={3} sx={{ display: "flex", justifyContent: "center" }}>
         {image && (
           <Stage

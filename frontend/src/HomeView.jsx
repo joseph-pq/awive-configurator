@@ -4,10 +4,19 @@ import { Button, Box, Container } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { ImagesContext } from "./ImagesContext";
 
-export default function HomeView({handleNext}) {
+export default function HomeView({handleNext:handleNextRoot}) {
   const fileInputRef = useRef(null);
   const { image, setImageSrc, imageSrc, imageConfig, setImageConfig } =
     useContext(ImagesContext);
+
+  const handleNext = () => {
+    // check image is uploaded
+    if (!imageSrc) {
+      alert("Please upload an image");
+      return;
+    }
+    handleNextRoot();
+  }
 
   // Handle image upload
   const handleImageUpload = (e) => {

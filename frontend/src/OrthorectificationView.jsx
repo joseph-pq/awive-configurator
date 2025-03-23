@@ -1,6 +1,13 @@
 import React, { useState, useRef, useContext } from "react";
 import { ImagesContext } from "./ImagesContext";
-import { Stage, Layer, Image as KonvaImage, Circle, Line } from "react-konva";
+import {
+  Stage,
+  Layer,
+  Image as KonvaImage,
+  Circle,
+  Line,
+  Text,
+} from "react-konva";
 
 import useImage from "use-image";
 import {
@@ -39,12 +46,16 @@ export default function OrthorectificationView() {
     // Check if the click is near any existing line
     const isNearLine = distances.some((dist) => {
       const { points } = dist;
-      const distanceToLine = Math.abs(
-        (points[1].y - points[0].y) * pointer.x -
-        (points[1].x - points[0].x) * pointer.y +
-        points[1].x * points[0].y -
-        points[1].y * points[0].x
-      ) / Math.sqrt((points[1].y - points[0].y) ** 2 + (points[1].x - points[0].x) ** 2);
+      const distanceToLine =
+        Math.abs(
+          (points[1].y - points[0].y) * pointer.x -
+            (points[1].x - points[0].x) * pointer.y +
+            points[1].x * points[0].y -
+            points[1].y * points[0].x,
+        ) /
+        Math.sqrt(
+          (points[1].y - points[0].y) ** 2 + (points[1].x - points[0].x) ** 2,
+        );
       return distanceToLine < 10; // Threshold distance to consider "near"
     });
 
@@ -61,13 +72,15 @@ export default function OrthorectificationView() {
 
     // Recalculate distances dynamically
     const updatedDistances = [];
+    let k = -0;
     for (let i = 0; i < newGcpPoints.length - 1; i++) {
       for (let j = i + 1; j < newGcpPoints.length; j++) {
-        const distance = calculateDistance(newGcpPoints[i], newGcpPoints[j]);
+        // const distance = calculateDistance(newGcpPoints[i], newGcpPoints[j]);
         updatedDistances.push({
           points: [newGcpPoints[i], newGcpPoints[j]],
-          distance,
+          distance: distances[k].distance,
         });
+        k++;
       }
     }
     setDistances(updatedDistances);
@@ -94,7 +107,7 @@ export default function OrthorectificationView() {
     const newDistances = [];
     for (let i = 0; i < gcpPoints.length - 1; i++) {
       for (let j = i + 1; j < gcpPoints.length; j++) {
-        const distance = calculateDistance(gcpPoints[i], gcpPoints[j]);
+        const distance = 0;
         newDistances.push({ points: [gcpPoints[i], gcpPoints[j]], distance });
       }
     }
@@ -142,6 +155,14 @@ export default function OrthorectificationView() {
     }
   };
 
+  // Calculate the midpoint between two points for text positioning
+  const getMidpoint = (point1, point2) => {
+    return {
+      x: (point1.x + point2.x) / 2,
+      y: (point1.y + point2.y) / 2,
+    };
+  };
+
   return (
     <Container sx={{ textAlign: "center", mt: 4 }}>
       {/* Action Buttons */}
@@ -182,22 +203,65 @@ export default function OrthorectificationView() {
                 offsetX={imageConfig.width / 2}
                 offsetY={imageConfig.height / 2}
               />
-              {distances.map((dist, index) => (
-                <Line
-                  key={index}
-                  points={[
-                    dist.points[0].x,
-                    dist.points[0].y,
-                    dist.points[1].x,
-                    dist.points[1].y,
-                  ]}
-                  stroke="yellow"
-                  strokeWidth={4}
-                  onClick={() =>
-                    handleOpenDistanceDialog(dist.points[0], dist.points[1])
-                  } // Open distance dialog
-                />
-              ))}
+              {distances.map((dist, index) => {
+                const midpoint = getMidpoint(dist.points[0], dist.points[1]);
+                return (
+                  <React.Fragment key={index}>
+                    <Line
+                      points={[
+                        dist.points[0].x,
+                        dist.points[0].y,
+                        dist.points[1].x,
+                        dist.points[1].y,
+                      ]}
+                      stroke="yellow"
+                      strokeWidth={4}
+                      onClick={() =>
+                        handleOpenDistanceDialog(dist.points[0], dist.points[1])
+                      }
+                    />
+                    {/* Text box showing distance */}
+                    <Text
+                      x={midpoint.x - 30} // Offset to center the text box
+                      y={midpoint.y - 10} // Offset to center the text box
+                      text={dist.distance} // Display distance with 2 decimal places
+                      fontSize={14}
+                      fontStyle="bold"
+                      fill="white" // Text color
+                      width={60}
+                      height={20}
+                      align="center"
+                      verticalAlign="middle"
+                      listening={false} // Make it non-interactive
+                    />
+                    {/* Background for the text */}
+                    <Circle
+                      x={midpoint.x}
+                      y={midpoint.y}
+                      radius={20}
+                      fill="rgba(0, 0, 0, 0.6)" // Semi-transparent background
+                      stroke="white"
+                      strokeWidth={1}
+                      perfectDrawEnabled={false}
+                      listening={false} // Make it non-interactive
+                    />
+                    {/* Text on top of background */}
+                    <Text
+                      x={midpoint.x - 30}
+                      y={midpoint.y - 10}
+                      text={dist.distance}
+                      fontSize={14}
+                      fontStyle="bold"
+                      fill="white"
+                      width={60}
+                      height={20}
+                      align="center"
+                      verticalAlign="middle"
+                      listening={false}
+                    />
+                  </React.Fragment>
+                );
+              })}
               {gcpPoints.map((point, index) => (
                 <Circle
                   key={index}

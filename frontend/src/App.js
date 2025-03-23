@@ -1,9 +1,8 @@
 import React, { useState, useRef } from "react";
 import { Stage, Layer, Image as KonvaImage, Circle } from "react-konva";
-import {ImagesProvider} from "./ImagesContext";
+import { ImagesProvider } from "./ImagesContext";
 
 import TabContext from "@mui/lab/TabContext";
-import TabList from "@mui/lab/TabList";
 import TabPanel from "@mui/lab/TabPanel";
 
 import useImage from "use-image";
@@ -26,13 +25,31 @@ import OrthorectificationView from "./OrthorectificationView";
 const TABS = [
   { label: "Home", value: "1", component: <HomeView /> },
   // { label: 'Image Correction', value: '2', component: <ImageCorrectionView /> },
-  { label: 'Orthorectification', value: '3', component: <OrthorectificationView /> },
+  {
+    label: "Orthorectification",
+    value: "3",
+    component: <OrthorectificationView />,
+  },
   // { label: 'Rotation', value: '4', component: <RotationView /> },
 ];
 
 export default function App() {
   const [currentTab, setCurrentTab] = useState("1");
-  const handleTabChange = (_, newValue) => setCurrentTab(newValue);
+  const handlePrev = () => {
+    setCurrentTab((prev) => {
+      const currentIndex = TABS.findIndex((tab) => tab.value === prev);
+      const newIndex = (currentIndex - 1 + TABS.length) % TABS.length;
+      return TABS[newIndex].value;
+    });
+  };
+
+  const handleNext = () => {
+    setCurrentTab((prev) => {
+      const currentIndex = TABS.findIndex((tab) => tab.value === prev);
+      const newIndex = (currentIndex + 1) % TABS.length;
+      return TABS[newIndex].value;
+    });
+  };
 
   return (
     <ImagesProvider>
@@ -48,15 +65,25 @@ export default function App() {
           sx={{
             display: "flex",
             flexDirection: "column",
+            justifyContent: "center",
             alignItems: "center",
-            width: "100%",
           }}
         >
-          <TabList onChange={handleTabChange} aria-label="App navigation tabs">
-            {TABS.map(({ label, value }) => (
-              <Tab key={value} label={label} value={value} />
-            ))}
-          </TabList>
+          <Typography variant="h6" sx={{ mx: 1 }}>
+            {TABS.find((tab) => tab.value === currentTab).label}
+          </Typography>
+          <Box sx={{ flexGrow: 1 }}>
+            {currentTab !== "1" && (
+              <Button variant="contained" onClick={handlePrev} sx={{ mx: 1 }}>
+                Previous
+              </Button>
+            )}
+            {currentTab !== TABS[TABS.length - 1].value && (
+              <Button variant="contained" onClick={handleNext} sx={{ mx: 1 }}>
+                Next
+              </Button>
+            )}
+          </Box>
         </Box>
         {TABS.map(({ value, component }) => (
           <TabPanel key={value} value={value}>

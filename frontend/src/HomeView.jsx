@@ -59,22 +59,6 @@ export default function HomeView() {
 
   return (
     <Container sx={{ textAlign: "center", mt: 4 }}>
-      {/* Upload Button */}
-      <input
-        type="file"
-        accept="image/*"
-        hidden
-        ref={fileInputRef}
-        onChange={handleImageUpload}
-      />
-      <Button
-        variant="contained"
-        component="span"
-        startIcon={<CloudUploadIcon />}
-        onClick={() => fileInputRef.current.click()}
-      >
-        Upload Image
-      </Button>
 
       <Box mt={3} sx={{ display: "flex", justifyContent: "center" }}>
         {image && imageConfig.width > 0 && imageConfig.height > 0 && (
@@ -93,6 +77,22 @@ export default function HomeView() {
           </Stage>
         )}
       </Box>
+      {/* Upload Button */}
+      <input
+        type="file"
+        accept="image/*"
+        hidden
+        ref={fileInputRef}
+        onChange={handleImageUpload}
+      />
+      <Button
+        variant="contained"
+        component="span"
+        startIcon={<CloudUploadIcon />}
+        onClick={() => fileInputRef.current.click()}
+      >
+        Upload Image
+      </Button>
     </Container>
   );
 }

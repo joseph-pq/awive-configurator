@@ -76,7 +76,6 @@ export default function OrthorectificationView() {
 
   // Update distances when GCPs change
   React.useEffect(() => {
-    console.log("GCPs changed:", gcpPoints);
     const newDistances = [];
     for (let i = 0; i < 3; i++) {
       for (let j = i + 1; j < 4; j++) {
@@ -94,7 +93,6 @@ export default function OrthorectificationView() {
         }
       }
     }
-    console.log("New distances:", newDistances);
     setDistances(newDistances);
   }, [gcpPoints]);
 
@@ -115,17 +113,10 @@ export default function OrthorectificationView() {
     setIsDragging(false); // End dragging
   };
 
-  // Handle saving GCPs and distances
-  const handleSaveGCPs = () => {
-    console.log("Selected GCPs:", gcpPoints);
-    console.log("Distances:", distances);
-  };
-
   // Handle right-click to remove a GCP
   const handleGcpRightClick = (e, index) => {
     e.evt.preventDefault(); // Prevent the default right-click menu
     const newGcpPoints = { ...gcpPoints };
-    console.log("Removing GCP at index", index);
     delete newGcpPoints[index]; // Remove the GCP at the specified index
     setGcpPoints(newGcpPoints);
   };
@@ -154,7 +145,6 @@ export default function OrthorectificationView() {
       setOpenDistanceDialog(false);
       setSelectedGcpPair(null);
       setDistanceValue(""); // Reset distance input
-      console.log("Distances updated:", newDistances);
     }
   };
 
@@ -168,18 +158,6 @@ export default function OrthorectificationView() {
 
   return (
     <Container sx={{ textAlign: "center", mt: 4 }}>
-      {/* Action Buttons */}
-      <Box mt={2}>
-        <Button
-          variant="contained"
-          color="success"
-          startIcon={<SaveIcon />}
-          onClick={handleSaveGCPs}
-          sx={{ mx: 1 }}
-        >
-          Save GCPs
-        </Button>
-      </Box>
 
       <Box mt={3} sx={{ display: "flex", justifyContent: "center" }}>
         {image && (

@@ -4,7 +4,7 @@ import { Button, Box, Container } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { ImagesContext } from "./ImagesContext";
 
-export default function HomeView() {
+export default function HomeView({handleNext}) {
   const fileInputRef = useRef(null);
   const { image, setImageSrc, imageSrc, imageConfig, setImageConfig } =
     useContext(ImagesContext);
@@ -59,6 +59,9 @@ export default function HomeView() {
 
   return (
     <Container sx={{ textAlign: "center", mt: 4 }}>
+      <Button variant="contained" onClick={handleNext} sx={{ mx: 1 }}>
+        Next
+      </Button>
 
       <Box mt={3} sx={{ display: "flex", justifyContent: "center" }}>
         {image && imageConfig.width > 0 && imageConfig.height > 0 && (

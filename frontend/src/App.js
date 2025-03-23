@@ -72,22 +72,19 @@ export default function App() {
           <Typography variant="h6" sx={{ mx: 1 }}>
             {TABS.find((tab) => tab.value === currentTab).label}
           </Typography>
-          <Box sx={{ flexGrow: 1 }}>
-            {currentTab !== "1" && (
-              <Button variant="contained" onClick={handlePrev} sx={{ mx: 1 }}>
-                Previous
-              </Button>
-            )}
-            {currentTab !== TABS[TABS.length - 1].value && (
-              <Button variant="contained" onClick={handleNext} sx={{ mx: 1 }}>
-                Next
-              </Button>
-            )}
-          </Box>
+          {/* <Box sx={{ flexGrow: 1 }}> */}
+          {/*   {currentTab !== "1" && ( */}
+          {/*     <Button variant="contained" onClick={handlePrev} sx={{ mx: 1 }}> */}
+          {/*       Previous */}
+          {/*     </Button> */}
+          {/*   )} */}
+          {/*   {currentTab !== TABS[TABS.length - 1].value && ( */}
+          {/*   )} */}
+          {/* </Box> */}
         </Box>
         {TABS.map(({ value, component }) => (
           <TabPanel key={value} value={value}>
-            {component}
+            {React.cloneElement(component, { handleNext, handlePrev })}
           </TabPanel>
         ))}
       </TabContext>

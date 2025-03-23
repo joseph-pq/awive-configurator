@@ -28,7 +28,7 @@ import SaveIcon from "@mui/icons-material/Save";
 
 const ZOOM_SCALE = 2;
 
-export default function OrthorectificationView() {
+export default function OrthorectificationView({ handlePrev, handleNext }) {
   const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false); // Track if a GCP is being dragged
   const [openDistanceDialog, setOpenDistanceDialog] = useState(false); // Distance dialog visibility
@@ -163,6 +163,9 @@ export default function OrthorectificationView() {
 
   return (
     <Container sx={{ textAlign: "center", mt: 4 }}>
+      <Button variant="contained" onClick={handlePrev} sx={{ mx: 1 }}>
+        Previous
+      </Button>
       <Box mt={3} sx={{ display: "flex", justifyContent: "center" }}>
         {image && (
           <Stage

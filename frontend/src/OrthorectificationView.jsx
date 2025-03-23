@@ -29,14 +29,19 @@ import SaveIcon from "@mui/icons-material/Save";
 const ZOOM_SCALE = 2;
 
 export default function OrthorectificationView() {
-  const [gcpPoints, setGcpPoints] = useState({}); // map with keys 0,1,2,3
-  const [distances, setDistances] = useState([]); // Array of distances between GCPs
   const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false); // Track if a GCP is being dragged
   const [openDistanceDialog, setOpenDistanceDialog] = useState(false); // Distance dialog visibility
   const [selectedGcpPair, setSelectedGcpPair] = useState(null); // Selected GCP pair for distance input
   const [distanceValue, setDistanceValue] = useState(""); // Input distance value
-  const { image, imageConfig } = useContext(ImagesContext);
+  const {
+    image,
+    imageConfig,
+    gcpPoints,
+    setGcpPoints,
+    distances,
+    setDistances,
+  } = useContext(ImagesContext);
 
   // Handle GCP selection
   const handleCanvasClick = (e) => {
@@ -158,7 +163,6 @@ export default function OrthorectificationView() {
 
   return (
     <Container sx={{ textAlign: "center", mt: 4 }}>
-
       <Box mt={3} sx={{ display: "flex", justifyContent: "center" }}>
         {image && (
           <Stage

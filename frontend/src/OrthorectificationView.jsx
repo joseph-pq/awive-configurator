@@ -22,11 +22,13 @@ import {
   DialogContent,
   TextField,
 } from "@mui/material";
+import CircularProgress from "@mui/material/CircularProgress";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import RotateRightIcon from "@mui/icons-material/RotateRight";
 import SaveIcon from "@mui/icons-material/Save";
 
 const ZOOM_SCALE = 2;
+const API_URL = process.env.REACT_APP_API_URL;
 
 export default function OrthorectificationView({
   handlePrev,
@@ -46,8 +48,10 @@ export default function OrthorectificationView({
     setDistances,
   } = useContext(ImagesContext);
 
-  const handleNext = () => {
-    if (Object.keys(gcpPoints).length != 4) {
+  const [loading, setLoading] = useState(false); // Loading state
+
+  const handleNext = async () => {
+    if (Object.keys(gcpPoints).length !== 4) {
       alert("Please select 4 GCPs before proceeding");
       return;
     }
@@ -58,7 +62,33 @@ export default function OrthorectificationView({
         return;
       }
     }
-    handleNextRoot();
+    setLoading(true);
+
+    try {
+      const response = await fetch(`${API_URL}/orthorectify`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          image,
+          distances,
+          gcps: gcpPoints,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      const data = await response.json();
+      console.log("Response data:", data);
+      handleNextRoot();
+    } catch (error) {
+      console.error("Error during fetch:", error);
+      alert("An error occurred while processing the request.");
+    }
+    setLoading(false);
   };
   // Handle GCP selection
   const handleCanvasClick = (e) => {
@@ -368,6 +398,20 @@ export default function OrthorectificationView({
             Save
           </Button>
         </DialogActions>
+      </Dialog>
+      {/* Loading Spinner Dialog */}
+      <Dialog open={loading}>
+        <DialogContent>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <CircularProgress />
+          </Box>
+        </DialogContent>
       </Dialog>
     </Container>
   );

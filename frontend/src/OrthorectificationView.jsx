@@ -19,6 +19,8 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import RotateRightIcon from "@mui/icons-material/RotateRight";
 import SaveIcon from "@mui/icons-material/Save";
 
+const ZOOM_SCALE = 2;
+
 export default function OrthorectificationView() {
   const [gcpPoints, setGcpPoints] = useState([]);
   const [distances, setDistances] = useState([]); // Store distances between GCPs
@@ -210,24 +212,28 @@ export default function OrthorectificationView() {
             <Layer>
               <KonvaImage
                 image={image}
-                x={imageConfig.width / 2}
-                y={imageConfig.height / 2}
+                x={cursorPos.x}
+                y={cursorPos.y}
                 width={imageConfig.width}
                 height={imageConfig.height}
-                offsetX={imageConfig.width / 2}
-                offsetY={imageConfig.height / 2}
-                scaleX={2} // Zoom in the floating window
-                scaleY={2} // Zoom in the floating window
+                offsetX={cursorPos.x / ZOOM_SCALE}
+                offsetY={cursorPos.y / ZOOM_SCALE}
+                scaleX={ZOOM_SCALE} // Zoom in the floating window
+                scaleY={ZOOM_SCALE} // Zoom in the floating window
               />
               {/* Add a cross at the center */}
               <Line
+                x={cursorPos.x * ZOOM_SCALE - 100}
+                y={cursorPos.y * ZOOM_SCALE - 100}
                 points={[100, 0, 100, 200]} // Vertical line
-                stroke="red"
+                stroke="black"
                 strokeWidth={2}
               />
               <Line
+                x={cursorPos.x * ZOOM_SCALE - 100}
+                y={cursorPos.y * ZOOM_SCALE - 100}
                 points={[0, 100, 200, 100]} // Horizontal line
-                stroke="red"
+                stroke="black"
                 strokeWidth={2}
               />
             </Layer>

@@ -5,10 +5,13 @@ const ImagesContext = React.createContext();
 function ImagesProvider({children}) {
   const [imageSrc, setImageSrc] = React.useState(null);
   const [image] = useImage(imageSrc || "");
+  const [imageConfig, setImageConfig] = React.useState({});
 
   return (
     <ImagesContext.Provider value={{
       image,
+      imageConfig,
+      setImageConfig,
       imageSrc,
       setImageSrc
     }}>

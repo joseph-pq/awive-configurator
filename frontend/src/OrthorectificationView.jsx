@@ -1,4 +1,5 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useContext } from "react";
+import { ImagesContext } from "./ImagesContext";
 import { Stage, Layer, Image as KonvaImage, Circle } from "react-konva";
 
 import useImage from "use-image";
@@ -16,108 +17,71 @@ import RotateRightIcon from "@mui/icons-material/RotateRight";
 import SaveIcon from "@mui/icons-material/Save";
 
 export default function OrthorectificationView() {
-  // const [imageSrc, setImageSrc] = useState(null);
-  // const [gcpPoints, setGcpPoints] = useState([]);
-  // const fileInputRef = useRef(null);
-  // const [image] = useImage(imageSrc || "");
+  const [gcpPoints, setGcpPoints] = useState([]);
+  const { image, imageConfig } = useContext(ImagesContext);
 
-  // // Handle image upload
-  // const handleImageUpload = (e) => {
-  //   const file = e.target.files[0];
-  //   if (file) {
-  //     const reader = new FileReader();
-  //     reader.onload = () => setImageSrc(reader.result);
-  //     reader.readAsDataURL(file);
-  //   }
-  // };
-
-  // // Handle GCP selection
-  // const handleCanvasClick = (e) => {
-  //   const stage = e.target.getStage();
-  //   const pointer = stage.getPointerPosition();
-  //   setGcpPoints([...gcpPoints, pointer]);
-  // };
+  // Handle GCP selection
+  const handleCanvasClick = (e) => {
+    const stage = e.target.getStage();
+    const pointer = stage.getPointerPosition();
+    setGcpPoints([...gcpPoints, pointer]);
+  };
   return (
     <Container sx={{ textAlign: "center", mt: 4 }}>
-      {/* {/1* Upload Button *1/} */}
-      {/* <input */}
-      {/*   type="file" */}
-      {/*   accept="image/*" */}
-      {/*   hidden */}
-      {/*   ref={fileInputRef} */}
-      {/*   onChange={handleImageUpload} */}
-      {/* /> */}
-      {/* <Button */}
-      {/*   variant="contained" */}
-      {/*   component="span" */}
-      {/*   startIcon={<CloudUploadIcon />} */}
-      {/*   onClick={() => fileInputRef.current.click()} */}
-      {/* > */}
-      {/*   Upload Image */}
-      {/* </Button> */}
+      {/* Action Buttons */}
+      <Box mt={2}>
+        <Button
+          variant="contained"
+          color="success"
+          startIcon={<SaveIcon />}
+          onClick={() =>
+            console.log(
+              "Selected GCPs:",
+              gcpPoints.map((point) => ({
+                x: point.x,
+                y: point.y,
+                x_real:
+                  (point.x / imageConfig.width) * imageConfig.naturalWidth,
+                y_real:
+                  (point.y / imageConfig.height) * imageConfig.naturalHeight,
+              })),
+            )
+          }
+          sx={{ mx: 1 }}
+        >
+          Save GCPs
+        </Button>
+      </Box>
 
-      {/* <Box mt={3} sx={{ display: "flex", justifyContent: "center" }}> */}
-      {/*   {image && ( */}
-      {/*     <Stage width={500} height={500} onClick={handleCanvasClick}> */}
-      {/*       <Layer> */}
-      {/*         <KonvaImage */}
-      {/*           image={image} */}
-      {/*           x={250} // Center X (Stage width / 2) */}
-      {/*           y={250} // Center Y (Stage height / 2) */}
-      {/*           width={500} */}
-      {/*           height={500} */}
-      {/*           rotation={rotation} */}
-      {/*           offsetX={250} // Rotate around center X */}
-      {/*           offsetY={250} // Rotate around center Y */}
-      {/*         /> */}
-      {/*         {gcpPoints.map((point, index) => ( */}
-      {/*           <Circle */}
-      {/*             key={index} */}
-      {/*             x={point.x} */}
-      {/*             y={point.y} */}
-      {/*             radius={5} */}
-      {/*             fill="red" */}
-      {/*           /> */}
-      {/*         ))} */}
-      {/*       </Layer> */}
-      {/*     </Stage> */}
-      {/*   )} */}
-      {/* </Box> */}
-
-      {/* {/1* Rotation Slider *1/} */}
-      {/* <Box sx={{ mt: 2, width: 300, mx: "auto" }}> */}
-      {/*   <Typography gutterBottom>Rotation</Typography> */}
-      {/*   <Slider */}
-      {/*     value={rotation} */}
-      {/*     onChange={(e, newValue) => setRotation(newValue)} */}
-      {/*     min={0} */}
-      {/*     max={360} */}
-      {/*     step={1} */}
-      {/*     aria-labelledby="rotation-slider" */}
-      {/*   /> */}
-      {/* </Box> */}
-
-      {/* {/1* Action Buttons *1/} */}
-      {/* <Box mt={2}> */}
-      {/*   <Button */}
-      {/*     variant="contained" */}
-      {/*     color="secondary" */}
-      {/*     startIcon={<RotateRightIcon />} */}
-      {/*     onClick={() => setRotation(rotation + 90)} */}
-      {/*     sx={{ mx: 1 }} */}
-      {/*   > */}
-      {/*     Rotate 90° */}
-      {/*   </Button> */}
-
-      {/*   <Button */}
-      {/*     variant="contained" */}
-      {/*     color="success" */}
-      {/*     startIcon={<SaveIcon />} */}
-      {/*     onClick={() => console.log("Selected GCPs:", gcpPoints)} */}
-      {/*     sx={{ mx: 1 }} */}
-      {/*   > */}
-      {/*     Save GCPs */}
-      {/*   </Button> */}
+      <Box mt={3} sx={{ display: "flex", justifyContent: "center" }}>
+        {image && (
+          <Stage
+            width={imageConfig.width}
+            height={imageConfig.height}
+            onClick={handleCanvasClick}
+          >
+            <Layer>
+              <KonvaImage
+                image={image}
+                x={imageConfig.width / 2}
+                y={imageConfig.height / 2}
+                width={imageConfig.width}
+                height={imageConfig.height}
+                offsetX={imageConfig.width / 2}
+                offsetY={imageConfig.height / 2}
+              />
+              {gcpPoints.map((point, index) => (
+                <Circle
+                  key={index}
+                  x={point.x}
+                  y={point.y}
+                  radius={5}
+                  fill="red"
+                />
+              ))}
+            </Layer>
+          </Stage>
+        )}
       </Box>
     </Container>
   );

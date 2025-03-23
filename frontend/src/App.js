@@ -21,12 +21,12 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import RotateRightIcon from "@mui/icons-material/RotateRight";
 import SaveIcon from "@mui/icons-material/Save";
 import HomeView from "./HomeView";
-// import OrthorectificationView from "./OrthorectificationView";
+import OrthorectificationView from "./OrthorectificationView";
 
 const TABS = [
   { label: "Home", value: "1", component: <HomeView /> },
   // { label: 'Image Correction', value: '2', component: <ImageCorrectionView /> },
-  // { label: 'Orthorectification', value: '3', component: <OrthorectificationView /> },
+  { label: 'Orthorectification', value: '3', component: <OrthorectificationView /> },
   // { label: 'Rotation', value: '4', component: <RotationView /> },
 ];
 

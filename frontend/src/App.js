@@ -1,5 +1,10 @@
 import React, { useState, useRef } from "react";
 import { Stage, Layer, Image as KonvaImage, Circle } from "react-konva";
+import {ImagesProvider} from "./ImagesContext";
+
+import TabContext from "@mui/lab/TabContext";
+import TabList from "@mui/lab/TabList";
+import TabPanel from "@mui/lab/TabPanel";
 
 import useImage from "use-image";
 import {
@@ -9,38 +14,28 @@ import {
   Box,
   Typography,
   Slider,
+  Tab,
   Container,
 } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import RotateRightIcon from "@mui/icons-material/RotateRight";
 import SaveIcon from "@mui/icons-material/Save";
+import HomeView from "./HomeView";
+// import OrthorectificationView from "./OrthorectificationView";
+
+const TABS = [
+  { label: "Home", value: "1", component: <HomeView /> },
+  // { label: 'Image Correction', value: '2', component: <ImageCorrectionView /> },
+  // { label: 'Orthorectification', value: '3', component: <OrthorectificationView /> },
+  // { label: 'Rotation', value: '4', component: <RotationView /> },
+];
 
 export default function App() {
-  const [imageSrc, setImageSrc] = useState(null);
-  const [gcpPoints, setGcpPoints] = useState([]);
-  const [rotation, setRotation] = useState(0);
-  const fileInputRef = useRef(null);
-  const [image] = useImage(imageSrc || "");
-
-  // Handle image upload
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => setImageSrc(reader.result);
-      reader.readAsDataURL(file);
-    }
-  };
-
-  // Handle GCP selection
-  const handleCanvasClick = (e) => {
-    const stage = e.target.getStage();
-    const pointer = stage.getPointerPosition();
-    setGcpPoints([...gcpPoints, pointer]);
-  };
+  const [currentTab, setCurrentTab] = useState("1");
+  const handleTabChange = (_, newValue) => setCurrentTab(newValue);
 
   return (
-    <div>
+    <ImagesProvider>
       <AppBar position="static">
         <Toolbar>
           <Typography variant="h6" sx={{ flexGrow: 1, textAlign: "center" }}>
@@ -48,88 +43,27 @@ export default function App() {
           </Typography>
         </Toolbar>
       </AppBar>
-      <Container sx={{ textAlign: "center", mt: 4 }}>
-        {/* Upload Button */}
-        <input
-          type="file"
-          accept="image/*"
-          hidden
-          ref={fileInputRef}
-          onChange={handleImageUpload}
-        />
-        <Button
-          variant="contained"
-          component="span"
-          startIcon={<CloudUploadIcon />}
-          onClick={() => fileInputRef.current.click()}
+      <TabContext value={currentTab}>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            width: "100%",
+          }}
         >
-          Upload Image
-        </Button>
-
-        <Box mt={3} sx={{ display: "flex", justifyContent: "center" }}>
-          {image && (
-            <Stage width={500} height={500} onClick={handleCanvasClick}>
-              <Layer>
-                <KonvaImage
-                  image={image}
-                  x={250} // Center X (Stage width / 2)
-                  y={250} // Center Y (Stage height / 2)
-                  width={500}
-                  height={500}
-                  rotation={rotation}
-                  offsetX={250} // Rotate around center X
-                  offsetY={250} // Rotate around center Y
-                />
-                {gcpPoints.map((point, index) => (
-                  <Circle
-                    key={index}
-                    x={point.x}
-                    y={point.y}
-                    radius={5}
-                    fill="red"
-                  />
-                ))}
-              </Layer>
-            </Stage>
-          )}
+          <TabList onChange={handleTabChange} aria-label="App navigation tabs">
+            {TABS.map(({ label, value }) => (
+              <Tab key={value} label={label} value={value} />
+            ))}
+          </TabList>
         </Box>
-
-        {/* Rotation Slider */}
-        <Box sx={{ mt: 2, width: 300, mx: "auto" }}>
-          <Typography gutterBottom>Rotation</Typography>
-          <Slider
-            value={rotation}
-            onChange={(e, newValue) => setRotation(newValue)}
-            min={0}
-            max={360}
-            step={1}
-            aria-labelledby="rotation-slider"
-          />
-        </Box>
-
-        {/* Action Buttons */}
-        <Box mt={2}>
-          <Button
-            variant="contained"
-            color="secondary"
-            startIcon={<RotateRightIcon />}
-            onClick={() => setRotation(rotation + 90)}
-            sx={{ mx: 1 }}
-          >
-            Rotate 90°
-          </Button>
-
-          <Button
-            variant="contained"
-            color="success"
-            startIcon={<SaveIcon />}
-            onClick={() => console.log("Selected GCPs:", gcpPoints)}
-            sx={{ mx: 1 }}
-          >
-            Save GCPs
-          </Button>
-        </Box>
-      </Container>
-    </div>
+        {TABS.map(({ value, component }) => (
+          <TabPanel key={value} value={value}>
+            {component}
+          </TabPanel>
+        ))}
+      </TabContext>
+    </ImagesProvider>
   );
 }

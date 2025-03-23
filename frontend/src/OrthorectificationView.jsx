@@ -29,8 +29,8 @@ import SaveIcon from "@mui/icons-material/Save";
 const ZOOM_SCALE = 2;
 
 export default function OrthorectificationView() {
-  const [gcpPoints, setGcpPoints] = useState([]);
-  const [distances, setDistances] = useState([]); // Store distances between GCPs
+  const [gcpPoints, setGcpPoints] = useState({}); // map with keys 0,1,2,3
+  const [distances, setDistances] = useState([]); // Array of distances between GCPs
   const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false); // Track if a GCP is being dragged
   const [openDistanceDialog, setOpenDistanceDialog] = useState(false); // Distance dialog visibility
@@ -43,9 +43,14 @@ export default function OrthorectificationView() {
     const stage = e.target.getStage();
     const pointer = stage.getPointerPosition();
 
+    // check if there are already 4 points
+    if (Object.keys(gcpPoints).length >= 4) {
+      return;
+    }
     // Check if the click is near any existing line
     const isNearLine = distances.some((dist) => {
-      const { points } = dist;
+      const { points: points_ } = dist;
+      const points = points_.map((point) => gcpPoints[point]);
       const distanceToLine =
         Math.abs(
           (points[1].y - points[0].y) * pointer.x -
@@ -58,33 +63,46 @@ export default function OrthorectificationView() {
         );
       return distanceToLine < 10; // Threshold distance to consider "near"
     });
-
-    if (!isNearLine) {
-      setGcpPoints([...gcpPoints, pointer]);
+    if (isNearLine) {
+      return;
     }
+    // pick lowest available key in gcpPoints
+    let key = 0;
+    while (gcpPoints[key] !== undefined) {
+      key++;
+    }
+    setGcpPoints({ ...gcpPoints, [key]: pointer });
   };
+
+  // Update distances when GCPs change
+  React.useEffect(() => {
+    console.log("GCPs changed:", gcpPoints);
+    const newDistances = [];
+    for (let i = 0; i < 3; i++) {
+      for (let j = i + 1; j < 4; j++) {
+        if (gcpPoints[i] && gcpPoints[j]) {
+          const distance =
+            distances.find(
+              (dist) =>
+                (dist.points[0] === i && dist.points[1] === j) ||
+                (dist.points[0] === j && dist.points[1] === i),
+            )?.distance || 0;
+          newDistances.push({
+            points: [i, j],
+            distance,
+          });
+        }
+      }
+    }
+    console.log("New distances:", newDistances);
+    setDistances(newDistances);
+  }, [gcpPoints]);
 
   // Handle GCP drag
   const handleDragMove = (e, index) => {
-    const newGcpPoints = [...gcpPoints];
+    const newGcpPoints = { ...gcpPoints };
     newGcpPoints[index] = { x: e.target.x(), y: e.target.y() };
     setGcpPoints(newGcpPoints);
-
-    // Recalculate distances dynamically
-    const updatedDistances = [];
-    let k = -0;
-    for (let i = 0; i < newGcpPoints.length - 1; i++) {
-      for (let j = i + 1; j < newGcpPoints.length; j++) {
-        // const distance = calculateDistance(newGcpPoints[i], newGcpPoints[j]);
-        updatedDistances.push({
-          points: [newGcpPoints[i], newGcpPoints[j]],
-          distance: distances[k].distance,
-        });
-        k++;
-      }
-    }
-    setDistances(updatedDistances);
-
     // Track cursor position during drag
     setCursorPos({ x: e.target.x(), y: e.target.y() });
   };
@@ -97,23 +115,6 @@ export default function OrthorectificationView() {
     setIsDragging(false); // End dragging
   };
 
-  // Function to calculate distance between two points
-  const calculateDistance = (point1, point2) => {
-    return Math.sqrt((point2.x - point1.x) ** 2 + (point2.y - point1.y) ** 2);
-  };
-
-  // Handle line connection between GCPs and calculate distances
-  const handleConnectGCPs = () => {
-    const newDistances = [];
-    for (let i = 0; i < gcpPoints.length - 1; i++) {
-      for (let j = i + 1; j < gcpPoints.length; j++) {
-        const distance = 0;
-        newDistances.push({ points: [gcpPoints[i], gcpPoints[j]], distance });
-      }
-    }
-    setDistances(newDistances);
-  };
-
   // Handle saving GCPs and distances
   const handleSaveGCPs = () => {
     console.log("Selected GCPs:", gcpPoints);
@@ -123,14 +124,15 @@ export default function OrthorectificationView() {
   // Handle right-click to remove a GCP
   const handleGcpRightClick = (e, index) => {
     e.evt.preventDefault(); // Prevent the default right-click menu
-    const newGcpPoints = [...gcpPoints];
-    newGcpPoints.splice(index, 1); // Remove the GCP at the specified index
+    const newGcpPoints = { ...gcpPoints };
+    console.log("Removing GCP at index", index);
+    delete newGcpPoints[index]; // Remove the GCP at the specified index
     setGcpPoints(newGcpPoints);
   };
 
   // Handle opening the distance input dialog
-  const handleOpenDistanceDialog = (gcp1, gcp2) => {
-    setSelectedGcpPair([gcp1, gcp2]);
+  const handleOpenDistanceDialog = (gcpIdx1, gcpIdx2) => {
+    setSelectedGcpPair([gcpIdx1, gcpIdx2]);
     setOpenDistanceDialog(true);
   };
 
@@ -144,7 +146,7 @@ export default function OrthorectificationView() {
           (dist.points[0] === selectedGcpPair[1] &&
             dist.points[1] === selectedGcpPair[0])
         ) {
-          return { ...dist, distance: distanceValue };
+          return { ...dist, distance: Number(distanceValue) };
         }
         return dist;
       });
@@ -152,6 +154,7 @@ export default function OrthorectificationView() {
       setOpenDistanceDialog(false);
       setSelectedGcpPair(null);
       setDistanceValue(""); // Reset distance input
+      console.log("Distances updated:", newDistances);
     }
   };
 
@@ -176,14 +179,6 @@ export default function OrthorectificationView() {
         >
           Save GCPs
         </Button>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleConnectGCPs}
-          sx={{ mx: 1 }}
-        >
-          Connect GCPs
-        </Button>
       </Box>
 
       <Box mt={3} sx={{ display: "flex", justifyContent: "center" }}>
@@ -204,15 +199,21 @@ export default function OrthorectificationView() {
                 offsetY={imageConfig.height / 2}
               />
               {distances.map((dist, index) => {
-                const midpoint = getMidpoint(dist.points[0], dist.points[1]);
+                if (!gcpPoints[dist.points[0]] || !gcpPoints[dist.points[1]]) {
+                  return null;
+                }
+                const midpoint = getMidpoint(
+                  gcpPoints[dist.points[0]],
+                  gcpPoints[dist.points[1]],
+                );
                 return (
                   <React.Fragment key={index}>
                     <Line
                       points={[
-                        dist.points[0].x,
-                        dist.points[0].y,
-                        dist.points[1].x,
-                        dist.points[1].y,
+                        gcpPoints[dist.points[0]].x,
+                        gcpPoints[dist.points[0]].y,
+                        gcpPoints[dist.points[1]].x,
+                        gcpPoints[dist.points[1]].y,
                       ]}
                       stroke="yellow"
                       strokeWidth={4}
@@ -262,7 +263,7 @@ export default function OrthorectificationView() {
                   </React.Fragment>
                 );
               })}
-              {gcpPoints.map((point, index) => (
+              {Object.entries(gcpPoints).map(([index, point]) => (
                 <Circle
                   key={index}
                   x={point.x}

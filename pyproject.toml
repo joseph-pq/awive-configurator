@@ -13,6 +13,9 @@ dependencies = [
 ]
 
 [dependency-groups]
+backend = [
+    "fastapi[standard]>=0.115.12",
+]
 dev = [
     "debugpy>=1.8.5",
     "ipython>=9.0.2",

@@ -21,6 +21,7 @@ import RotateRightIcon from "@mui/icons-material/RotateRight";
 import SaveIcon from "@mui/icons-material/Save";
 import HomeView from "./HomeView";
 import OrthorectificationView from "./OrthorectificationView";
+import RotationView from "./RotationView";
 
 const TABS = [
   { label: "Home", value: "1", component: <HomeView /> },
@@ -30,7 +31,7 @@ const TABS = [
     value: "3",
     component: <OrthorectificationView />,
   },
-  // { label: 'Rotation', value: '4', component: <RotationView /> },
+  { label: 'Rotation', value: '4', component: <RotationView /> },
 ];
 
 export default function App() {

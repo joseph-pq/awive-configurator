@@ -1,46 +1,74 @@
 from fastapi import APIRouter, UploadFile, File
+import json
+import cv2
 from fastapi.responses import FileResponse
 from awive.preprocess.correct_image import Formatter
+from fastapi import Form
 from pathlib import Path
 import tempfile
 from awive.loader import Loader, make_loader
-from awive.config import Dataset as DatasetConfig, ConfigGcp
-from app.models import ProcessPublic, ProcessInput
+from awive.config import (
+    Dataset as DatasetConfig,
+    ConfigGcp,
+    PreProcessing as PreProcessingConfig,
+    ImageCorrection,
+)
+from app.models import ProcessInput
 
 router = APIRouter(prefix="/process", tags=["process"])
 
 
-@router.post("/", response_model=ProcessPublic)
+@router.post("/")
 async def apply_distortion_correction(
-    process_input: ProcessInput,
     file: UploadFile = File(...),
+    gcps: str = Form(...),
+    distances: str = Form(...),
 ) -> FileResponse:
+    # process_input_ = json.loads(process_input)
     # Save the uploaded file to a temporary directory
     if file.filename is None:
         raise ValueError("No file provided")
-    with tempfile.NamedTemporaryFile(
-        delete=False, suffix=Path(file.filename).suffix
-    ) as temp_file:
-        temp_file.write(await file.read())
-        image_dp = Path(temp_file.name)
+    with tempfile.TemporaryDirectory() as image_dp:
+        image_fp = Path(image_dp) / f"0001.{file.filename.split('.')[-1]}"
+        with open(image_fp, "wb") as image_file:
+            image_file.write(await file.read())
 
-    dataset_config = DatasetConfig(
-        image_dataset_dp=image_dp,
-        gcp=ConfigGcp(
-            pixels=process_input.gcps,
-            distances=process_input.distances,
-            apply=True,
-        ),
-    )
-    loader: Loader = make_loader(dataset_config)
-    formatter = Formatter(config)
-    image = loader.read()
-    image = formatter.apply_distortion_correction(image)
+        distances_ = {
+            tuple(map(int, key.split(","))): value
+            for key, value in json.loads(distances).items()
+        }
+        pixels = [(int(gcp[0]), int(gcp[1])) for gcp in json.loads(gcps)]
 
-    # Save the processed image to a temporary file
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as processed_file:
-        processed_image.save(processed_file.name)
-        processed_image_path = processed_file.name
+        dataset_config = DatasetConfig(
+            image_dataset_dp=image_dp,
+            image_suffix=file.filename.split(".")[-1],
+            gcp=ConfigGcp(
+                pixels=pixels,
+                distances=distances_,
+                apply=True,
+            ),
+        )
+        loader: Loader = make_loader(dataset_config)
+        formatter = Formatter(
+            dataset_config,
+            PreProcessingConfig(
+                pre_roi=((0, 0), (0, 0)),
+                roi=((0, 0), (0, 0)),
+                image_correction=ImageCorrection(apply=False, k1=0.1, c=0, f=0.1),
+            ),
+        )
+        image = loader.read()
+        if image is None:
+            raise ValueError("No image found")
+        image = formatter.apply_distortion_correction(image)
 
-    # Return the processed image as a response
-    return FileResponse(processed_image_path, media_type="image/png", filename="processed_image.png")
+        # Save the processed image to a temporary file
+        # out_fp = Path(image_dp) / f"processed_image.{file.filename.split('.')[-1]}"
+        cv2.imwrite("out.png", image)
+
+        # Return the processed image as a response
+        return FileResponse(
+            "out.png",
+            media_type="image/png",
+            filename="processed_image.png",
+        )

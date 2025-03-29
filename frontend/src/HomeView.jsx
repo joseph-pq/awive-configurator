@@ -20,7 +20,10 @@ export default function HomeView({handleNext:handleNextRoot}) {
 
   // Handle image upload
   const handleImageUpload = (e) => {
+    const newImageConfig = {...imageConfig};
     const file = e.target.files[0];
+    newImageConfig.file = file
+    setImageConfig(newImageConfig);
     if (file) {
       const reader = new FileReader();
       reader.onload = () => setImageSrc(reader.result);
@@ -42,6 +45,7 @@ export default function HomeView({handleNext:handleNextRoot}) {
       if (width > 1024 || height > 768) {
         if (width / 1024 > height / 768) {
           setImageConfig({
+            ...imageConfig,
             width: 1024,
             height: (1024 / width) * height,
             naturalWidth: img.naturalWidth,
@@ -49,6 +53,7 @@ export default function HomeView({handleNext:handleNextRoot}) {
           });
         } else {
           setImageConfig({
+            ...imageConfig,
             width: (768 / height) * width,
             height: 768,
             naturalWidth: img.naturalWidth,
@@ -57,6 +62,7 @@ export default function HomeView({handleNext:handleNextRoot}) {
         }
       } else {
         setImageConfig({
+          ...imageConfig,
           width: width,
           height: height,
           naturalWidth: img.naturalWidth,

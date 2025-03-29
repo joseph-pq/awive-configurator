@@ -28,7 +28,7 @@ import RotateRightIcon from "@mui/icons-material/RotateRight";
 import SaveIcon from "@mui/icons-material/Save";
 
 const ZOOM_SCALE = 2;
-const API_URL = process.env.REACT_APP_API_URL;
+const API_URL = process.env.REACT_APP_API_URL + '/api/v1';
 
 export default function OrthorectificationView({
   handlePrev,
@@ -44,6 +44,7 @@ export default function OrthorectificationView({
     imageConfig,
     gcpPoints,
     setGcpPoints,
+    setImageSrc,
     distances,
     setDistances,
   } = useContext(ImagesContext);
@@ -65,24 +66,37 @@ export default function OrthorectificationView({
     setLoading(true);
 
     try {
-      const response = await fetch(`${API_URL}/orthorectify`, {
+      const out_gcps = Object.entries(gcpPoints).map(([key, point]) => [
+        point.x_natural, point.y_natural,
+      ]);
+      const out_distances = {};
+      distances.forEach((dist) => {
+        const key = `${dist.points[0]},${dist.points[1]}`;
+        out_distances[key] = dist.distance;
+      });
+      const formData = new FormData();
+      formData.append("file", imageConfig.file);  // Get the actual file
+      formData.append("gcps", JSON.stringify(out_gcps));  // Convert list to JSON string
+      formData.append("distances", JSON.stringify(out_distances));  // Convert dict to JSON string
+
+
+      const response = await fetch(`${API_URL}/process/`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          image,
-          distances,
-          gcps: gcpPoints,
-        }),
+        body: formData,
       });
 
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
 
-      const data = await response.json();
-      console.log("Response data:", data);
+      const blob = await response.blob();
+      const imageUrl = URL.createObjectURL(blob); // Create a URL for the blob
+
+      // Update the state to show the image
+      setImageSrc(imageUrl);
+
+      // const data = await response.json();
+      // console.log("Response data:", data);
       handleNextRoot();
     } catch (error) {
       console.error("Error during fetch:", error);
@@ -94,6 +108,8 @@ export default function OrthorectificationView({
   const handleCanvasClick = (e) => {
     const stage = e.target.getStage();
     const pointer = stage.getPointerPosition();
+    pointer.x_natural = pointer.x / imageConfig.height * imageConfig.naturalHeight;
+    pointer.y_natural = pointer.y / imageConfig.width * imageConfig.naturalWidth;
 
     // check if there are already 4 points
     if (Object.keys(gcpPoints).length >= 4) {

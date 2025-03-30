@@ -99,22 +99,22 @@ export default function OrthorectificationView({
       img.onload = () => {
         const width = img.width;
         const height = img.height;
-        if (width > 1024 || height > 718) {
-          if (width / 1024 > height / 718) {
+        if (width > 1024 || height > 698) {
+          if (width / 1024 > height / 698) {
             setImageConfig({
               ...imageConfig,
               width1: 1024,
               height1: (1024 / width) * height,
-              naturalWidth1: img.naturalWidth1,
-              naturalHeight1: img.naturalHeight1,
+              naturalWidth1: width,
+              naturalHeight1: height,
             });
           } else {
             setImageConfig({
               ...imageConfig,
-              width1: (718 / height) * width,
-              height1: 718,
-              naturalWidth1: img.naturalWidth1,
-              naturalHeight1: img.naturalHeight1,
+              width1: (698 / height) * width,
+              height1: 698,
+              naturalWidth1: width,
+              naturalHeight1: height,
             });
           }
         } else {
@@ -122,8 +122,8 @@ export default function OrthorectificationView({
             ...imageConfig,
             width1: width,
             height1: height,
-            naturalWidth1: img.naturalWidth1,
-            naturalHeight1: img.naturalHeight1,
+            naturalWidth1: width,
+            naturalHeight1: height,
           });
         }
         console.log("Image loaded with dimensions:", width, height);

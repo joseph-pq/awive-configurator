@@ -44,9 +44,9 @@ export default function OrthorectificationView({
     imageConfig,
     gcpPoints,
     setGcpPoints,
-    setImageSrc,
     distances,
     setDistances,
+    setImageSrc1,
   } = useContext(ImagesContext);
 
   const [loading, setLoading] = useState(false); // Loading state
@@ -93,7 +93,7 @@ export default function OrthorectificationView({
       const imageUrl = URL.createObjectURL(blob); // Create a URL for the blob
 
       // Update the state to show the image
-      setImageSrc(imageUrl);
+      setImageSrc1(imageUrl);
 
       // const data = await response.json();
       // console.log("Response data:", data);

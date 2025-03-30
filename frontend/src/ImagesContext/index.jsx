@@ -6,6 +6,8 @@ const ImagesContext = React.createContext();
 function ImagesProvider({children}) {
   const [imageSrc, setImageSrc] = React.useState(null);
   const [image] = useImage(imageSrc || "");
+  const [imageSrc1, setImageSrc1] = React.useState(null);
+  const [image1] = useImage(imageSrc1 || "");
   const {
     item: imageConfig,
     saveItem: setImageConfig,
@@ -32,10 +34,12 @@ function ImagesProvider({children}) {
       gcpPoints,
       setGcpPoints,
       image,
+      image1,
       imageConfig,
       setImageConfig,
       imageSrc,
-      setImageSrc
+      setImageSrc,
+      setImageSrc1,
     }}>
       {children}
     </ImagesContext.Provider>

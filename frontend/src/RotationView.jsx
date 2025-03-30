@@ -1,31 +1,33 @@
-import React, { useState, useRef, useContext, useEffect } from "react";
+import React, { useState, useContext } from "react";
 import { ImagesContext } from "./ImagesContext";
-import { Stage, Layer, Image as KonvaImage, Circle } from "react-konva";
-
-import useImage from "use-image";
-import {
-  Toolbar,
-  AppBar,
-  Button,
-  Box,
-  Typography,
-  Slider,
-  Container,
-} from "@mui/material";
-import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import { Stage, Layer, Image as KonvaImage } from "react-konva";
+import { Button, Box, Typography, Slider, Container } from "@mui/material";
 import RotateRightIcon from "@mui/icons-material/RotateRight";
-import SaveIcon from "@mui/icons-material/Save";
 
 export default function RotationView({
   handleNext: handleNextRoot,
   handlePrev,
 }) {
   const [rotation, setRotation] = useState(0);
-  const { image, setImageSrc, imageSrc, imageConfig, setImageConfig } =
-    useContext(ImagesContext);
-  const handleNext = () => {
-    handleNextRoot();
-  }
+  const [scale, setScale] = useState(1);
+  const { image1, imageConfig } = useContext(ImagesContext);
+  const updateScale = (rot) => {
+    setRotation(rot);
+    const radians = (Math.PI / 180) * rot;
+    const sin = Math.abs(Math.sin(radians));
+    const cos = Math.abs(Math.cos(radians));
+
+    const frameWidth = imageConfig.naturalWidth;
+    const frameHeight = imageConfig.naturalHeight;
+
+    const boundingBoxWidth = frameWidth * cos + frameHeight * sin;
+    const boundingBoxHeight = frameWidth * sin + frameHeight * cos;
+
+    const scaleX = frameWidth / boundingBoxWidth;
+    const scaleY = frameHeight / boundingBoxHeight;
+
+    setScale(Math.min(scaleX, scaleY));
+  };
 
   return (
     <Container sx={{ textAlign: "center", mt: 4 }}>
@@ -33,17 +35,14 @@ export default function RotationView({
         <Button variant="contained" onClick={handlePrev} sx={{ mx: 1 }}>
           Previous
         </Button>
-        {/* <Button variant="contained" onClick={handleNext} sx={{ mx: 1 }}> */}
-        {/*   Next */}
-        {/* </Button> */}
       </Box>
 
       <Box mt={3} sx={{ display: "flex", justifyContent: "center" }}>
-        {image && imageConfig.width > 0 && imageConfig.height > 0 && (
+        {image1 && imageConfig.width > 0 && imageConfig.height > 0 && (
           <Stage width={imageConfig.width} height={imageConfig.height}>
             <Layer>
               <KonvaImage
-                image={image}
+                image={image1}
                 x={imageConfig.width / 2}
                 y={imageConfig.height / 2}
                 width={imageConfig.width}
@@ -51,18 +50,21 @@ export default function RotationView({
                 rotation={rotation}
                 offsetX={imageConfig.width / 2}
                 offsetY={imageConfig.height / 2}
+                scaleX={scale}
+                scaleY={scale}
               />
             </Layer>
           </Stage>
         )}
       </Box>
 
-      {/* Rotation Slider */}
       <Box sx={{ mt: 2, width: 300, mx: "auto" }}>
         <Typography gutterBottom>Rotation</Typography>
         <Slider
           value={rotation}
-          onChange={(e, newValue) => setRotation(newValue)}
+          onChange={(e, newValue) => {
+            updateScale(newValue);
+          }}
           min={0}
           max={360}
           step={1}
@@ -70,13 +72,12 @@ export default function RotationView({
         />
       </Box>
 
-      {/* Action Buttons */}
       <Box mt={2}>
         <Button
           variant="contained"
           color="secondary"
           startIcon={<RotateRightIcon />}
-          onClick={() => setRotation(rotation + 90)}
+          onClick={() => updateScale((rotation + 90) % 360)}
           sx={{ mx: 1 }}
         >
           Rotate 90°

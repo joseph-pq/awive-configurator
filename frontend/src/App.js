@@ -22,6 +22,7 @@ import SaveIcon from "@mui/icons-material/Save";
 import HomeView from "./HomeView";
 import OrthorectificationView from "./OrthorectificationView";
 import RotationView from "./RotationView";
+import PreCropView from "./PreCropView";
 
 const TABS = [
   { label: "Home", value: "1", component: <HomeView /> },
@@ -31,7 +32,12 @@ const TABS = [
     value: "3",
     component: <OrthorectificationView />,
   },
-  { label: 'Rotation', value: '4', component: <RotationView /> },
+  {
+    label: "PreCrop",
+    value: "4",
+    component: <PreCropView />,
+  },
+  { label: 'Rotation', value: '5', component: <RotationView /> },
 ];
 
 export default function App() {

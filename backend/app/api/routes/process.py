@@ -72,6 +72,7 @@ async def apply_distortion_correction(
     if image is None:
         raise ValueError("No image found")
     image = formatter.apply_distortion_correction(image)
+    print(f"{image.shape=}")
 
     # Save the processed image to a temporary file
     cv2.imwrite("out.png", image)

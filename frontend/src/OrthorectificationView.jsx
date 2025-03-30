@@ -28,7 +28,7 @@ import RotateRightIcon from "@mui/icons-material/RotateRight";
 import SaveIcon from "@mui/icons-material/Save";
 
 const ZOOM_SCALE = 2;
-const API_URL = process.env.REACT_APP_API_URL + '/api/v1';
+const API_URL = process.env.REACT_APP_API_URL + "/api/v1";
 
 export default function OrthorectificationView({
   handlePrev,
@@ -42,6 +42,7 @@ export default function OrthorectificationView({
   const {
     image,
     imageConfig,
+    setImageConfig,
     gcpPoints,
     setGcpPoints,
     distances,
@@ -67,7 +68,8 @@ export default function OrthorectificationView({
 
     try {
       const out_gcps = Object.entries(gcpPoints).map(([key, point]) => [
-        point.x_natural, point.y_natural,
+        point.x_natural,
+        point.y_natural,
       ]);
       const out_distances = {};
       distances.forEach((dist) => {
@@ -75,10 +77,9 @@ export default function OrthorectificationView({
         out_distances[key] = dist.distance;
       });
       const formData = new FormData();
-      formData.append("file", imageConfig.file);  // Get the actual file
-      formData.append("gcps", JSON.stringify(out_gcps));  // Convert list to JSON string
-      formData.append("distances", JSON.stringify(out_distances));  // Convert dict to JSON string
-
+      formData.append("file", imageConfig.file); // Get the actual file
+      formData.append("gcps", JSON.stringify(out_gcps)); // Convert list to JSON string
+      formData.append("distances", JSON.stringify(out_distances)); // Convert dict to JSON string
 
       const response = await fetch(`${API_URL}/process/`, {
         method: "POST",
@@ -92,12 +93,45 @@ export default function OrthorectificationView({
       const blob = await response.blob();
       const imageUrl = URL.createObjectURL(blob); // Create a URL for the blob
 
-      // Update the state to show the image
-      setImageSrc1(imageUrl);
+      const img = new Image();
 
-      // const data = await response.json();
-      // console.log("Response data:", data);
-      handleNextRoot();
+      // Set up an onload handler to get the dimensions once the image is loaded
+      img.onload = () => {
+        const width = img.width;
+        const height = img.height;
+        if (width > 1024 || height > 718) {
+          if (width / 1024 > height / 718) {
+            setImageConfig({
+              ...imageConfig,
+              width1: 1024,
+              height1: (1024 / width) * height,
+              naturalWidth1: img.naturalWidth1,
+              naturalHeight1: img.naturalHeight1,
+            });
+          } else {
+            setImageConfig({
+              ...imageConfig,
+              width1: (718 / height) * width,
+              height1: 718,
+              naturalWidth1: img.naturalWidth1,
+              naturalHeight1: img.naturalHeight1,
+            });
+          }
+        } else {
+          setImageConfig({
+            ...imageConfig,
+            width1: width,
+            height1: height,
+            naturalWidth1: img.naturalWidth1,
+            naturalHeight1: img.naturalHeight1,
+          });
+        }
+        console.log("Image loaded with dimensions:", width, height);
+        setImageSrc1(imageUrl);
+        // Continue with your existing flow
+        handleNextRoot();
+      };
+      img.src = imageUrl; // Set the source of the image to the blob URL
     } catch (error) {
       console.error("Error during fetch:", error);
       alert("An error occurred while processing the request.");
@@ -108,8 +142,10 @@ export default function OrthorectificationView({
   const handleCanvasClick = (e) => {
     const stage = e.target.getStage();
     const pointer = stage.getPointerPosition();
-    pointer.x_natural = pointer.x / imageConfig.height * imageConfig.naturalHeight;
-    pointer.y_natural = pointer.y / imageConfig.width * imageConfig.naturalWidth;
+    pointer.x_natural =
+      (pointer.x / imageConfig.height) * imageConfig.naturalHeight;
+    pointer.y_natural =
+      (pointer.y / imageConfig.width) * imageConfig.naturalWidth;
 
     // check if there are already 4 points
     if (Object.keys(gcpPoints).length >= 4) {

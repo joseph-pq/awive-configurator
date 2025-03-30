@@ -22,6 +22,7 @@ dev = [
     "debugpy>=1.8.5",
     "ipython>=9.0.2",
     "matplotlib>=3.10.1",
+    "opencv-stubs>=0.0.11",
     "pyfzf>=0.3.1",
     "pyqt6>=6.8.1",
     "tk>=0.1.0",

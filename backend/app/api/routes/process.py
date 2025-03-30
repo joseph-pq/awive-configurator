@@ -13,7 +13,6 @@ from awive.config import (
     PreProcessing as PreProcessingConfig,
     ImageCorrection,
 )
-from app.models import ProcessInput
 
 router = APIRouter(prefix="/process", tags=["process"])
 
@@ -28,20 +27,24 @@ async def apply_distortion_correction(
     # Save the uploaded file to a temporary directory
     if file.filename is None:
         raise ValueError("No file provided")
-    with tempfile.TemporaryDirectory() as image_dp:
-        image_fp = Path(image_dp) / f"0001.{file.filename.split('.')[-1]}"
+
+    file_ext: str = file.filename.split(".")[-1]
+
+    with tempfile.TemporaryDirectory() as image_dp_:
+        image_dp = Path(image_dp_)
+        image_fp = image_dp / f"0001.{file_ext}"
         with open(image_fp, "wb") as image_file:
             image_file.write(await file.read())
 
         distances_ = {
-            tuple(map(int, key.split(","))): value
+            (int(key.split(",")[0]), int(key.split(",")[1])): value
             for key, value in json.loads(distances).items()
         }
         pixels = [(int(gcp[0]), int(gcp[1])) for gcp in json.loads(gcps)]
 
         dataset_config = DatasetConfig(
             image_dataset_dp=image_dp,
-            image_suffix=file.filename.split(".")[-1],
+            image_suffix=file_ext,  # type: ignore[arg-type]
             gcp=ConfigGcp(
                 pixels=pixels,
                 distances=distances_,

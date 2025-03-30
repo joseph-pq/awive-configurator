@@ -17,8 +17,8 @@ export default function RotationView({
     const sin = Math.abs(Math.sin(radians));
     const cos = Math.abs(Math.cos(radians));
 
-    const frameWidth = imageConfig.naturalWidth;
-    const frameHeight = imageConfig.naturalHeight;
+    const frameWidth = imageConfig.preCrop.widthLengthNatural;
+    const frameHeight = imageConfig.preCrop.heightLengthNatural;
 
     const boundingBoxWidth = frameWidth * cos + frameHeight * sin;
     const boundingBoxHeight = frameWidth * sin + frameHeight * cos;
@@ -28,7 +28,6 @@ export default function RotationView({
 
     setScale(Math.min(scaleX, scaleY));
   };
-
   return (
     <Container sx={{ textAlign: "center", mt: 4 }}>
       <Box sx={{ flexGrow: 1 }}>
@@ -38,20 +37,26 @@ export default function RotationView({
       </Box>
 
       <Box mt={3} sx={{ display: "flex", justifyContent: "center" }}>
-        {image1 && imageConfig.width > 0 && imageConfig.height > 0 && (
-          <Stage width={imageConfig.width} height={imageConfig.height}>
+        {image1 && imageConfig.preCrop.widthLength > 0 && imageConfig.preCrop.heightLength > 0 && (
+          <Stage width={imageConfig.preCrop.widthLength} height={imageConfig.preCrop.heightLength}>
             <Layer>
               <KonvaImage
                 image={image1}
-                x={imageConfig.width / 2}
-                y={imageConfig.height / 2}
-                width={imageConfig.width}
-                height={imageConfig.height}
+                x={imageConfig.preCrop.widthLength / 2}
+                y={imageConfig.preCrop.heightLength / 2}
+                width={imageConfig.preCrop.widthLength}
+                height={imageConfig.preCrop.heightLength}
                 rotation={rotation}
-                offsetX={imageConfig.width / 2}
-                offsetY={imageConfig.height / 2}
+                offsetX={imageConfig.preCrop.widthLength / 2}
+                offsetY={imageConfig.preCrop.heightLength / 2}
                 scaleX={scale}
                 scaleY={scale}
+                crop={{
+                  x: imageConfig.preCrop.xNatural,
+                  y: imageConfig.preCrop.yNatural,
+                  width: imageConfig.preCrop.widthNatural,
+                  height: imageConfig.preCrop.heightNatural,
+                }}
               />
             </Layer>
           </Stage>

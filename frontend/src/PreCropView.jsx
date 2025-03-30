@@ -28,6 +28,45 @@ export default function RotationView({
         alert("Please define a valid crop area.");
         return;
       }
+      const xNatural = cropArea.x / imageConfig.width1 * imageConfig.naturalWidth1;
+      const yNatural = cropArea.y / imageConfig.height1 * imageConfig.naturalHeight1;
+      const widthNatural = cropArea.width / imageConfig.width1 * imageConfig.naturalWidth1;
+      const heightNatural = cropArea.height / imageConfig.height1 * imageConfig.naturalHeight1;
+      const widthLengthNatural = widthNatural - xNatural;
+      const heightLengthNatural = heightNatural - yNatural;
+      let widthLength, heightLength;
+      if (widthLengthNatural > 1024 || heightLengthNatural > 768) {
+        if (widthLengthNatural / 1024 > heightLengthNatural / 768) {
+          widthLength = 1024;
+          heightLength = (1024 / widthLengthNatural) * heightLengthNatural;
+        } else {
+          widthLength = (768 / heightLengthNatural) * widthLengthNatural;
+          heightLength = 768;
+        }
+      } else {
+        widthLength = widthLengthNatural;
+        heightLength = heightLengthNatural;
+      }
+      console.log("widthLength", widthLength);
+      console.log("heightLength", heightLength);
+
+      setImageConfig({
+        ...imageConfig,
+        preCrop: {
+          x: cropArea.x,
+          y: cropArea.y,
+          width: cropArea.width,
+          height: cropArea.height,
+          xNatural: xNatural,
+          yNatural: yNatural,
+          widthNatural: widthNatural,
+          heightNatural: heightNatural,
+          widthLengthNatural: widthLengthNatural,
+          heightLengthNatural: heightLengthNatural,
+          widthLength: widthLength,
+          heightLength: heightLength,
+        },
+      });
     } else {
       alert("Please define a valid crop area.");
       return;

@@ -17,6 +17,7 @@ from awive.config import (
 
 router = APIRouter(prefix="/process", tags=["process"])
 
+
 async def get_temp_dir() -> AsyncGenerator[str, None]:
     tempdir = tempfile.TemporaryDirectory()
     try:
@@ -49,11 +50,7 @@ async def apply_distortion_correction(
         f"{key.split(',')[0].strip()},{key.split(',')[1].strip()}": value
         for key, value in json.loads(distances).items()
     }
-    print(f"{distances_=}")
     pixels = [(int(gcp[0]), int(gcp[1])) for gcp in json.loads(gcps)]
-
-    print(f"{pixels=}")
-    print(f"{distances_=}")
 
     dataset_config = DatasetConfig(
         image_dataset_dp=image_dp,
@@ -77,7 +74,6 @@ async def apply_distortion_correction(
     if image is None:
         raise ValueError("No image found")
     image = formatter.apply_distortion_correction(image)
-    print(f"{image.shape=}")
 
     # Save the processed image to a temporary file
     cv2.imwrite("out.png", image)

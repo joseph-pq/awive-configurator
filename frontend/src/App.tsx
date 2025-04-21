@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { ImagesProvider } from "./contexts/images";
 import { AppHeader } from "./components/layout/AppHeader";
 import { TabLayout } from "./components/layout/TabLayout";
@@ -6,6 +6,7 @@ import { HomeView } from "./components/pages/HomeView/HomeView";
 import { OrthorectificationView } from "./components/pages/OrthorectificationView/OrthorectificationView";
 import { PreCropView } from "./components/pages/PreCropView/PreCropView";
 import { RotationView } from "./components/pages/RotationView/RotationView";
+import { useTabNavigation } from "./hooks/useTabNavigation";
 
 const TABS = [
   { label: "Home", value: "1", component: HomeView },
@@ -24,22 +25,10 @@ const TABS = [
 ];
 
 export default function App() {
-  const [currentTab, setCurrentTab] = useState("1");
-  const handlePrev = () => {
-    setCurrentTab((prev) => {
-      const currentIndex = TABS.findIndex((tab) => tab.value === prev);
-      const newIndex = (currentIndex - 1 + TABS.length) % TABS.length;
-      return TABS[newIndex].value;
-    });
-  };
-
-  const handleNext = () => {
-    setCurrentTab((prev) => {
-      const currentIndex = TABS.findIndex((tab) => tab.value === prev);
-      const newIndex = (currentIndex + 1) % TABS.length;
-      return TABS[newIndex].value;
-    });
-  };
+  const { currentTab, handlePrev, handleNext } = useTabNavigation({
+    initialTab: "1",
+    tabs: TABS,
+  });
 
   return (
     <ImagesProvider>

@@ -1,14 +1,14 @@
 import React, { useState, useContext } from "react";
 import { ImagesContext } from "../../ImagesContext";
-import { ImageViewer } from "../../components/common/ImageViewer/ImageViewer";
 import { ImageControls } from "../../components/features/ImageControls/ImageControls";
-import { Image as KonvaImage } from "react-konva";
+import {  Box  } from "@mui/material";
+import { Stage, Layer, Image as KonvaImage } from "react-konva";
 
 interface RotationViewProps {
   handlePrev: () => void;
 }
 
-export default function RotationView({ handlePrev }: RotationViewProps) {
+export const RotationView: React.FC<RotationViewProps> = ({ handlePrev }) => {
   const [rotation, setRotation] = useState(0);
   const [scale, setScale] = useState(1);
   const context = useContext(ImagesContext);
@@ -46,28 +46,39 @@ export default function RotationView({ handlePrev }: RotationViewProps) {
         onRotationChange={updateScale}
         onRotate90={() => updateScale((rotation + 90) % 360)}
         onPrevious={handlePrev}
-        onNext={() => {}}
+        onNext={null}
       />
-      <ImageViewer image={image1} imageConfig={imageConfig}>
-        <KonvaImage
-          image={image1}
-          x={imageConfig.preCrop.widthLength / 2}
-          y={imageConfig.preCrop.heightLength / 2}
-          width={imageConfig.preCrop.widthLength}
-          height={imageConfig.preCrop.heightLength}
-          rotation={rotation}
-          offsetX={imageConfig.preCrop.widthLength / 2}
-          offsetY={imageConfig.preCrop.heightLength / 2}
-          scaleX={scale}
-          scaleY={scale}
-          crop={{
-            x: imageConfig.preCrop.xNatural,
-            y: imageConfig.preCrop.yNatural,
-            width: imageConfig.preCrop.widthNatural,
-            height: imageConfig.preCrop.heightNatural,
-          }}
-        />
-      </ImageViewer>
+      <Box mt={3} sx={{ display: "flex", justifyContent: "center" }}>
+        {image1 &&
+          imageConfig.preCrop.widthLength > 0 &&
+          imageConfig.preCrop.heightLength > 0 && (
+            <Stage
+              width={imageConfig.preCrop.widthLength}
+              height={imageConfig.preCrop.heightLength}
+            >
+              <Layer>
+                <KonvaImage
+                  image={image1}
+                  x={imageConfig.preCrop.widthLength / 2}
+                  y={imageConfig.preCrop.heightLength / 2}
+                  width={imageConfig.preCrop.widthLength}
+                  height={imageConfig.preCrop.heightLength}
+                  rotation={rotation}
+                  offsetX={imageConfig.preCrop.widthLength / 2}
+                  offsetY={imageConfig.preCrop.heightLength / 2}
+                  scaleX={scale}
+                  scaleY={scale}
+                  crop={{
+                    x: imageConfig.preCrop.xNatural,
+                    y: imageConfig.preCrop.yNatural,
+                    width: imageConfig.preCrop.widthNatural,
+                    height: imageConfig.preCrop.heightNatural,
+                  }}
+                />
+              </Layer>
+            </Stage>
+          )}
+      </Box>
     </>
   );
-}
+};

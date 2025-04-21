@@ -7,8 +7,8 @@ import TabPanel from "@mui/lab/TabPanel";
 import { Toolbar, AppBar, Box, Typography } from "@mui/material";
 import { OrthorectificationView } from "./views/OrthorectificationView/OrthorectificationView";
 import { HomeView } from "./views/HomeView/HomeView";
-import RotationView from "./RotationView";
 import { PreCropView } from "./views/PreCropView/PreCropView";
+import { RotationView } from "./views/RotationView/RotationView";
 
 const TABS = [
   { label: "Home", value: "1", component: <HomeView /> },

@@ -2,18 +2,7 @@ import React from "react";
 import { useLocalStorage } from "./useLocalStorage";
 import useImage from "use-image";
 import { ImageConfig } from "../../types/image";
-
-interface Distance {
-  points: [number, number];
-  distance: number;
-}
-
-interface GcpPoint {
-  x: number;
-  y: number;
-  x_natural: number;
-  y_natural: number;
-}
+import { GcpPoint, Distance } from "../../types/gcp";
 
 interface ImagesContextProps {
   distances: Distance[];
@@ -66,11 +55,11 @@ function ImagesProvider({ children }: { children: React.ReactNode }) {
       widthLengthNatural: 0,
       widthNatural: 0,
       xNatural: 0,
-      yNatural: 0
+      yNatural: 0,
     },
     width: 0,
     width1: 0,
-    width2: 0
+    width2: 0,
   });
   const {
     item: gcpPoints,

@@ -4,13 +4,9 @@ import { ImageViewer } from "../../shared/ImageViewer/ImageViewer";
 import { ImageControls } from "../../features/ImageControls/ImageControls";
 import { Rect } from "react-konva";
 import { KonvaEventObject } from "konva/lib/Node";
+import { TabComponentProps } from "../../../types/tabs";
 
-interface PreCropViewProps {
-  handleNext: () => void;
-  handlePrev: () => void;
-}
-
-export const PreCropView: React.FC<PreCropViewProps> = ({
+export const PreCropView: React.FC<TabComponentProps> = ({
   handleNext: handleNextRoot,
   handlePrev,
 }) => {

@@ -8,4 +8,4 @@ export interface GcpPoint {
 export interface Distance {
   points: [number, number];
   distance: number;
-} 
+}

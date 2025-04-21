@@ -1,17 +1,15 @@
-import { useState } from 'react';
-
-interface TabContent {
-  label: string;
-  value: string;
-  component: React.ComponentType<any>;
-}
+import { useState } from "react";
+import { TabContent } from "../types/tabs";
 
 interface UseTabNavigationProps {
   initialTab: string;
   tabs: TabContent[];
 }
 
-export const useTabNavigation = ({ initialTab, tabs }: UseTabNavigationProps) => {
+export const useTabNavigation = ({
+  initialTab,
+  tabs,
+}: UseTabNavigationProps) => {
   const [currentTab, setCurrentTab] = useState(initialTab);
 
   const handlePrev = () => {
@@ -35,4 +33,4 @@ export const useTabNavigation = ({ initialTab, tabs }: UseTabNavigationProps) =>
     handlePrev,
     handleNext,
   };
-}; 
+};

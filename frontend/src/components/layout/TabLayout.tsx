@@ -1,18 +1,8 @@
-import React from 'react';
-import { Box, Typography } from '@mui/material';
-import TabContext from '@mui/lab/TabContext';
-import TabPanel from '@mui/lab/TabPanel';
-
-interface TabComponentProps {
-  handleNext: () => void;
-  handlePrev: () => void;
-}
-
-interface TabContent {
-  label: string;
-  value: string;
-  component: React.ComponentType<TabComponentProps>;
-}
+import React from "react";
+import { Box, Typography } from "@mui/material";
+import TabContext from "@mui/lab/TabContext";
+import TabPanel from "@mui/lab/TabPanel";
+import { TabContent } from "../../types/tabs";
 
 interface TabLayoutProps {
   currentTab: string;

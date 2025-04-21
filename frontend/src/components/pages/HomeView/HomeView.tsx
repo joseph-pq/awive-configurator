@@ -6,12 +6,9 @@ import { ImageViewer } from "../../shared/ImageViewer/ImageViewer";
 import { UploadButton } from "../../shared/UploadButton/UploadButton";
 import { useImageUpload } from "../../../hooks/useImageUpload";
 import { useImageScaling } from "../../../hooks/useImageScaling";
+import { TabComponentProps } from "../../../types/tabs";
 
-interface HomeViewProps {
-  handleNext: () => void;
-}
-
-export const HomeView: React.FC<HomeViewProps> = ({
+export const HomeView: React.FC<TabComponentProps> = ({
   handleNext: handleNextRoot,
 }) => {
   const context = useContext(ImagesContext);

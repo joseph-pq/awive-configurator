@@ -3,12 +3,9 @@ import { ImagesContext } from "../../../contexts/images";
 import { ImageControls } from "../../features/ImageControls/ImageControls";
 import { Box } from "@mui/material";
 import { Stage, Layer, Image as KonvaImage } from "react-konva";
+import { TabComponentProps } from "../../../types/tabs";
 
-interface RotationViewProps {
-  handlePrev: () => void;
-}
-
-export const RotationView: React.FC<RotationViewProps> = ({ handlePrev }) => {
+export const RotationView: React.FC<TabComponentProps> = ({ handlePrev }) => {
   const [rotation, setRotation] = useState(0);
   const [scale, setScale] = useState(1);
   const context = useContext(ImagesContext);

@@ -14,18 +14,15 @@ import { KonvaEventObject } from "konva/lib/Node";
 import { Node } from "konva/lib/Node";
 import { NodeConfig } from "konva/lib/Node";
 import { GcpPoint } from "../../../types/gcp";
+import { TabComponentProps } from "../../../types/tabs";
 
-interface OrthorectificationViewProps {
-  handlePrev: () => void;
-  handleNext: () => void;
-}
 
 interface CursorPosition {
   x: number;
   y: number;
 }
 
-export const OrthorectificationView: React.FC<OrthorectificationViewProps> = ({
+export const OrthorectificationView: React.FC<TabComponentProps> = ({
   handlePrev,
   handleNext: handleNextRoot,
 }) => {

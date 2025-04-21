@@ -65,7 +65,7 @@ export const OrthorectificationView: React.FC<OrthorectificationViewProps> = ({
     setLoading(true);
 
     try {
-      const out_gcps = Object.entries(gcpPoints).map(([key, point]) => [
+      const out_gcps = Object.entries(gcpPoints).map(([, point]) => [
         point.x_natural,
         point.y_natural,
       ]);
@@ -217,11 +217,18 @@ React.useEffect(() => {
     setIsDragging(false);
   };
 
+  /**
+   * Handles right-click on a GCP point to remove it
+   *
+   * @param e - The Konva mouse event
+   * @param index - The index of the GCP point to remove
+   */
   const handleGcpRightClick = (e: KonvaEventObject<MouseEvent>, index: string) => {
     e.evt.preventDefault();
-    const newGcpPoints = { ...gcpPoints };
-    delete newGcpPoints[index];
-    setGcpPoints(newGcpPoints);
+    const rest = Object.fromEntries(
+      Object.entries(gcpPoints).filter(([key]) => key !== index)
+    );
+    setGcpPoints(rest);
   };
 
   const handleOpenDistanceDialog = (gcpIdx1: number, gcpIdx2: number) => {

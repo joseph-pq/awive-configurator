@@ -41,7 +41,7 @@ wheels = [
 
 [[package]]
 name = "awive"
-version = "3.0.3"
+version = "3.0.4"
 source = { editable = "../awive" }
 dependencies = [
     { name = "numpy" },
@@ -60,10 +60,15 @@ requires-dist = [
 dev = [
     { name = "dvc-gdrive", specifier = ">=3.0.1" },
     { name = "ipython", specifier = ">=8.18.1" },
-    { name = "matplotlib", specifier = ">=3.9.4" },
+    { name = "matplotlib", specifier = ">=3.9.2" },
+    { name = "mkdocs", specifier = ">=1.6.1" },
+    { name = "mkdocs-material", specifier = ">=9.5.34" },
+    { name = "mkdocstrings-python", specifier = ">=1.11.1" },
     { name = "opencv-stubs", specifier = ">=0.0.11" },
     { name = "pyfzf", specifier = ">=0.3.1" },
     { name = "pyqt5", specifier = ">=5.15.11" },
+    { name = "pytest", specifier = ">=8.3.5" },
+    { name = "pytest-cov", specifier = ">=6.1.1" },
     { name = "requests", specifier = ">=2.31.0" },
     { name = "tk", specifier = ">=0.1.0" },
     { name = "typer", specifier = ">=0.15.2" },
@@ -75,7 +80,21 @@ docs = [
     { name = "mkdocs-material", specifier = ">=9.5.34" },
     { name = "mkdocstrings-python", specifier = ">=1.11.1" },
 ]
-plots = [{ name = "matplotlib", specifier = ">=3.9.2" }]
+plots = [
+    { name = "matplotlib", specifier = ">=3.9.2" },
+    { name = "pyqt5", specifier = ">=5.15.11" },
+    { name = "tk", specifier = ">=0.1.0" },
+]
+stubs = [
+    { name = "opencv-stubs", specifier = ">=0.0.11" },
+    { name = "typer", specifier = ">=0.15.2" },
+    { name = "types-pyyaml", specifier = ">=6.0.12.20241230" },
+    { name = "types-requests", specifier = ">=2.31.0.20240125" },
+]
+test = [
+    { name = "pytest", specifier = ">=8.3.5" },
+    { name = "pytest-cov", specifier = ">=6.1.1" },
+]
 
 [[package]]
 name = "awive-configurator"

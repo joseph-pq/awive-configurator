@@ -1,14 +1,11 @@
 import React, { useState } from "react";
 import { ImagesProvider } from "./contexts/images";
-
-import TabContext from "@mui/lab/TabContext";
-import TabPanel from "@mui/lab/TabPanel";
-
-import { Toolbar, AppBar, Box, Typography } from "@mui/material";
-import { OrthorectificationView } from "./views/OrthorectificationView/OrthorectificationView";
-import { HomeView } from "./views/HomeView/HomeView";
-import { PreCropView } from "./views/PreCropView/PreCropView";
-import { RotationView } from "./views/RotationView/RotationView";
+import { AppHeader } from "./components/layout/AppHeader";
+import { TabLayout } from "./components/layout/TabLayout";
+import { HomeView } from "./components/pages/HomeView/HomeView";
+import { OrthorectificationView } from "./components/pages/OrthorectificationView/OrthorectificationView";
+import { PreCropView } from "./components/pages/PreCropView/PreCropView";
+import { RotationView } from "./components/pages/RotationView/RotationView";
 
 const TABS = [
   { label: "Home", value: "1", component: HomeView },
@@ -46,32 +43,13 @@ export default function App() {
 
   return (
     <ImagesProvider>
-      <AppBar position="static">
-        <Toolbar>
-          <Typography variant="h6" sx={{ flexGrow: 1, textAlign: "center" }}>
-            AWIVE Configurator
-          </Typography>
-        </Toolbar>
-      </AppBar>
-      <TabContext value={currentTab}>
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <Typography variant="h6" sx={{ mx: 1 }}>
-            {TABS.find((tab) => tab.value === currentTab)?.label}
-          </Typography>
-        </Box>
-        {TABS.map(({ value, component: Component }) => (
-          <TabPanel key={value} value={value}>
-            <Component handleNext={handleNext} handlePrev={handlePrev} />
-          </TabPanel>
-        ))}
-      </TabContext>
+      <AppHeader />
+      <TabLayout
+        currentTab={currentTab}
+        tabs={TABS}
+        handleNext={handleNext}
+        handlePrev={handlePrev}
+      />
     </ImagesProvider>
   );
 }

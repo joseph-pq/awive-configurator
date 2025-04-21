@@ -1,11 +1,11 @@
 import React, { useContext, useEffect } from "react";
-import { ImageControls } from "../../components/features/ImageControls/ImageControls";
+import { ImageControls } from "../../features/ImageControls/ImageControls";
 import { Container } from "@mui/material";
-import { ImagesContext } from "../../contexts/images";
-import { ImageViewer } from "../../components/common/ImageViewer/ImageViewer";
-import { UploadButton } from "../../components/common/UploadButton/UploadButton";
-import { useImageUpload } from "../../hooks/useImageUpload";
-import { useImageScaling } from "../../hooks/useImageScaling";
+import { ImagesContext } from "../../../contexts/images";
+import { ImageViewer } from "../../shared/ImageViewer/ImageViewer";
+import { UploadButton } from "../../shared/UploadButton/UploadButton";
+import { useImageUpload } from "../../../hooks/useImageUpload";
+import { useImageScaling } from "../../../hooks/useImageScaling";
 
 interface HomeViewProps {
   handleNext: () => void;

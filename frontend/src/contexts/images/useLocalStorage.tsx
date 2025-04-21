@@ -26,13 +26,14 @@ function useLocalStorage<T>(itemName: string, initialValue: T) {
 
       setLoading(false);
     } catch (error) {
+      console.error('Error reading localStorage item:', error);
       setLoading(false);
       setError(true);
     }
   }, []);
 
   const saveItem = (newItem: T | ((prevState: T) => T)) => {
-    const valueToStore = typeof newItem === 'function' 
+    const valueToStore = typeof newItem === 'function'
       ? (newItem as (prevState: T) => T)(item)
       : newItem;
     localStorage.setItem(itemName, JSON.stringify(valueToStore));

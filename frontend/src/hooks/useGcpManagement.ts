@@ -13,8 +13,10 @@ export const useGcpManagement = () => {
   const removeGcpPoint = useCallback((key: string) => {
     setGcpPoints(prev => {
       const newPoints = { ...prev };
-      delete newPoints[key];
-      return newPoints;
+      const rest = Object.fromEntries(
+        Object.entries(newPoints).filter(([k]) => k !== key)
+      );
+      return rest;
     });
   }, []);
 
@@ -44,4 +46,4 @@ export const useGcpManagement = () => {
     setGcpPoints,
     setDistances
   };
-}; 
+};

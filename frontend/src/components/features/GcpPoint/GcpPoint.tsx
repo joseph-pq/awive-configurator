@@ -1,14 +1,15 @@
-import React from 'react';
-import { Circle } from 'react-konva';
-import { GcpPoint as GcpPointType } from '../../../types/gcp';
+import React from "react";
+import { Circle } from "react-konva";
+import { KonvaEventObject } from "konva/lib/Node";
+import { GcpPoint as GcpPointType } from "../../../types/gcp";
 
 interface GcpPointProps {
   point: GcpPointType;
   index: string;
-  onDragMove: (e: any, index: string) => void;
+  onDragMove: (e: KonvaEventObject<DragEvent>, index: string) => void;
   onDragStart: () => void;
   onDragEnd: () => void;
-  onContextMenu: (e: any, index: string) => void;
+  onContextMenu: (e: KonvaEventObject<PointerEvent>, index: string) => void;
 }
 
 export const GcpPoint: React.FC<GcpPointProps> = ({
@@ -32,4 +33,4 @@ export const GcpPoint: React.FC<GcpPointProps> = ({
       onContextMenu={(e) => onContextMenu(e, index)}
     />
   );
-}; 
+};

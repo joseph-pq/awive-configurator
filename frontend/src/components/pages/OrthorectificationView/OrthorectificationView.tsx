@@ -1,19 +1,19 @@
 import React, { useState, useContext } from "react";
 import { Box } from "@mui/material";
 import { Stage, Layer, Line, Image as KonvaImage } from "react-konva";
-import { ImagesContext } from "../../contexts/images";
-import { ImageViewer } from "../../components/common/ImageViewer/ImageViewer";
-import { ImageControls } from "../../components/features/ImageControls/ImageControls";
-import { DistanceDialog } from "../../components/features/DistanceDialog/DistanceDialog";
-import { LoadingDialog } from "../../components/common/LoadingDialog/LoadingDialog";
-import { GcpPoint as GcpPointComponent } from "../../components/features/GcpPoint/GcpPoint";
-import { DistanceLine } from "../../components/features/DistanceLine/DistanceLine";
-import { API_URL } from "../../constants/api";
-import { ZOOM_SCALE } from "../../constants/image";
+import { ImagesContext } from "../../../contexts/images";
+import { ImageViewer } from "../../shared/ImageViewer/ImageViewer";
+import { ImageControls } from "../../features/ImageControls/ImageControls";
+import { DistanceDialog } from "../../features/DistanceDialog/DistanceDialog";
+import { LoadingDialog } from "../../shared/LoadingDialog/LoadingDialog";
+import { GcpPoint as GcpPointComponent } from "../../features/GcpPoint/GcpPoint";
+import { DistanceLine } from "../../features/DistanceLine/DistanceLine";
+import { API_URL } from "../../../constants/api";
+import { ZOOM_SCALE } from "../../../constants/image";
 import { KonvaEventObject } from "konva/lib/Node";
 import { Node } from "konva/lib/Node";
 import { NodeConfig } from "konva/lib/Node";
-import { GcpPoint } from "../../types/gcp";
+import { GcpPoint } from "../../../types/gcp";
 
 interface OrthorectificationViewProps {
   handlePrev: () => void;

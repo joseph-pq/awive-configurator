@@ -1,5 +1,5 @@
-import React, { useState, useRef, useContext } from "react";
-import { ImagesContext } from "./ImagesContext";
+import React, { useState, useContext } from "react";
+import { ImagesContext, GcpPoint } from "./ImagesContext";
 import {
   Stage,
   Layer,
@@ -9,10 +9,7 @@ import {
   Text,
 } from "react-konva";
 
-import useImage from "use-image";
 import {
-  Toolbar,
-  AppBar,
   Button,
   Box,
   Typography,
@@ -23,22 +20,34 @@ import {
   TextField,
 } from "@mui/material";
 import CircularProgress from "@mui/material/CircularProgress";
-import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import RotateRightIcon from "@mui/icons-material/RotateRight";
-import SaveIcon from "@mui/icons-material/Save";
+import { KonvaEventObject } from "konva/lib/Node";
 
 const ZOOM_SCALE = 2;
 const API_URL = process.env.REACT_APP_API_URL + "/api/v1";
 
+interface OrthorectificationViewProps {
+  handlePrev: () => void;
+  handleNext: () => void;
+}
+interface CursorPosition {
+  x: number;
+  y: number;
+}
+
 export default function OrthorectificationView({
   handlePrev,
   handleNext: handleNextRoot,
-}) {
-  const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
-  const [isDragging, setIsDragging] = useState(false); // Track if a GCP is being dragged
-  const [openDistanceDialog, setOpenDistanceDialog] = useState(false); // Distance dialog visibility
-  const [selectedGcpPair, setSelectedGcpPair] = useState(null); // Selected GCP pair for distance input
+}: OrthorectificationViewProps) {
+
+  const [cursorPos, setCursorPos] = useState<CursorPosition>({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState<boolean>(false); // Track if a GCP is being dragged
+  const [openDistanceDialog, setOpenDistanceDialog] = useState<boolean>(false); // Distance dialog visibility
+  const [selectedGcpPair, setSelectedGcpPair] = useState<[number, number] | null>(null); // Selected GCP pair for distance input
   const [distanceValue, setDistanceValue] = useState(""); // Input distance value
+  const context = useContext(ImagesContext);
+  if (!context) {
+    throw new Error("ImagesContext must be used within an ImagesProvider");
+  }
   const {
     image,
     imageConfig,
@@ -48,7 +57,7 @@ export default function OrthorectificationView({
     distances,
     setDistances,
     setImageSrc1,
-  } = useContext(ImagesContext);
+  } = context;
 
   const [loading, setLoading] = useState(false); // Loading state
 
@@ -71,13 +80,13 @@ export default function OrthorectificationView({
         point.x_natural,
         point.y_natural,
       ]);
-      const out_distances = {};
+      const out_distances: Record<string, number> = {};
       distances.forEach((dist) => {
         const key = `${dist.points[0]},${dist.points[1]}`;
         out_distances[key] = dist.distance;
       });
       const formData = new FormData();
-      formData.append("file", imageConfig.file); // Get the actual file
+      formData.append("file", imageConfig.file as Blob); // Get the actual file
       formData.append("gcps", JSON.stringify(out_gcps)); // Convert list to JSON string
       formData.append("distances", JSON.stringify(out_distances)); // Convert dict to JSON string
 
@@ -139,13 +148,17 @@ export default function OrthorectificationView({
     setLoading(false);
   };
   // Handle GCP selection
-  const handleCanvasClick = (e) => {
+  const handleCanvasClick = (e: KonvaEventObject<MouseEvent>) => {
     const stage = e.target.getStage();
+    if (!stage) return;
     const pointer = stage.getPointerPosition();
-    pointer.x_natural =
-      (pointer.x / imageConfig.height) * imageConfig.naturalHeight;
-    pointer.y_natural =
-      (pointer.y / imageConfig.width) * imageConfig.naturalWidth;
+    if (!pointer) return;
+    const newPointer = {
+      x: pointer.x,
+      y: pointer.y,
+      x_natural: (pointer.x / imageConfig.height) * imageConfig.naturalHeight,
+      y_natural: (pointer.y / imageConfig.width) * imageConfig.naturalWidth
+    };
 
     // check if there are already 4 points
     if (Object.keys(gcpPoints).length >= 4) {
@@ -158,9 +171,9 @@ export default function OrthorectificationView({
       const distanceToLine =
         Math.abs(
           (points[1].y - points[0].y) * pointer.x -
-            (points[1].x - points[0].x) * pointer.y +
-            points[1].x * points[0].y -
-            points[1].y * points[0].x,
+          (points[1].x - points[0].x) * pointer.y +
+          points[1].x * points[0].y -
+          points[1].y * points[0].x,
         ) /
         Math.sqrt(
           (points[1].y - points[0].y) ** 2 + (points[1].x - points[0].x) ** 2,
@@ -175,7 +188,7 @@ export default function OrthorectificationView({
     while (gcpPoints[key] !== undefined) {
       key++;
     }
-    setGcpPoints({ ...gcpPoints, [key]: pointer });
+    setGcpPoints({ ...gcpPoints, [key]: newPointer });
   };
 
   // Update distances when GCPs change
@@ -183,7 +196,7 @@ export default function OrthorectificationView({
     const newDistances = [];
     for (let i = 0; i < 3; i++) {
       for (let j = i + 1; j < 4; j++) {
-        if (gcpPoints[i] && gcpPoints[j]) {
+        if (gcpPoints[i.toString()] && gcpPoints[j.toString()]) {
           const distance =
             distances.find(
               (dist) =>
@@ -191,7 +204,7 @@ export default function OrthorectificationView({
                 (dist.points[0] === j && dist.points[1] === i),
             )?.distance || 0;
           newDistances.push({
-            points: [i, j],
+            points: [i, j] as [number, number],
             distance,
           });
         }
@@ -201,9 +214,13 @@ export default function OrthorectificationView({
   }, [gcpPoints]);
 
   // Handle GCP drag
-  const handleDragMove = (e, index) => {
+  const handleDragMove = (e: KonvaEventObject<MouseEvent>, index: string) => {
     const newGcpPoints = { ...gcpPoints };
-    newGcpPoints[index] = { x: e.target.x(), y: e.target.y() };
+    newGcpPoints[index] = {
+      ...newGcpPoints[index],
+      x: e.target.x(),
+      y: e.target.y(),
+    };
     setGcpPoints(newGcpPoints);
     // Track cursor position during drag
     setCursorPos({ x: e.target.x(), y: e.target.y() });
@@ -218,7 +235,7 @@ export default function OrthorectificationView({
   };
 
   // Handle right-click to remove a GCP
-  const handleGcpRightClick = (e, index) => {
+  const handleGcpRightClick = (e: KonvaEventObject<MouseEvent>, index: string) => {
     e.evt.preventDefault(); // Prevent the default right-click menu
     const newGcpPoints = { ...gcpPoints };
     delete newGcpPoints[index]; // Remove the GCP at the specified index
@@ -226,7 +243,7 @@ export default function OrthorectificationView({
   };
 
   // Handle opening the distance input dialog
-  const handleOpenDistanceDialog = (gcpIdx1, gcpIdx2) => {
+  const handleOpenDistanceDialog = (gcpIdx1: number, gcpIdx2: number) => {
     setSelectedGcpPair([gcpIdx1, gcpIdx2]);
     setOpenDistanceDialog(true);
   };
@@ -235,11 +252,11 @@ export default function OrthorectificationView({
   const handleSaveDistance = () => {
     if (selectedGcpPair && distanceValue) {
       const newDistances = distances.map((dist) => {
+        const [p1, p2] = dist.points;
+        const [s1, s2] = selectedGcpPair;
         if (
-          (dist.points[0] === selectedGcpPair[0] &&
-            dist.points[1] === selectedGcpPair[1]) ||
-          (dist.points[0] === selectedGcpPair[1] &&
-            dist.points[1] === selectedGcpPair[0])
+          (p1 === s1 && p2 === s2) ||
+          (p1 === s2 && p2 === s1)
         ) {
           return { ...dist, distance: Number(distanceValue) };
         }
@@ -253,7 +270,7 @@ export default function OrthorectificationView({
   };
 
   // Calculate the midpoint between two points for text positioning
-  const getMidpoint = (point1, point2) => {
+  const getMidpoint = (point1: GcpPoint, point2: GcpPoint) => {
     return {
       x: (point1.x + point2.x) / 2,
       y: (point1.y + point2.y) / 2,
@@ -314,7 +331,7 @@ export default function OrthorectificationView({
                     <Text
                       x={midpoint.x - 30} // Offset to center the text box
                       y={midpoint.y - 10} // Offset to center the text box
-                      text={dist.distance} // Display distance with 2 decimal places
+                      text={dist.distance.toString()} // Display distance with 2 decimal places
                       fontSize={14}
                       fontStyle="bold"
                       fill="white" // Text color
@@ -339,7 +356,7 @@ export default function OrthorectificationView({
                     <Text
                       x={midpoint.x - 30}
                       y={midpoint.y - 10}
-                      text={dist.distance}
+                      text={dist.distance.toString()}
                       fontSize={14}
                       fontStyle="bold"
                       fill="white"

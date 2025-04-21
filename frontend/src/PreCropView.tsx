@@ -2,12 +2,22 @@ import React, { useState, useContext, useRef } from "react";
 import { ImagesContext } from "./ImagesContext";
 import { Stage, Layer, Image as KonvaImage, Rect } from "react-konva";
 import { Button, Box, Typography, Slider, Container } from "@mui/material";
+import { KonvaEventObject } from "konva/lib/Node";
+
+interface RotationViewProps {
+  handleNext: () => void;
+  handlePrev: () => void;
+}
 
 export default function RotationView({
   handleNext: handleNextRoot,
   handlePrev,
-}) {
-  const { image1, imageConfig, setImageConfig } = useContext(ImagesContext);
+}: RotationViewProps) {
+  const context = useContext(ImagesContext);
+  if (!context) {
+    throw new Error("ImagesContext must be used within an ImagesProvider");
+  }
+  const { image1, imageConfig, setImageConfig } = context;
   const [isDrawing, setIsDrawing] = useState(false);
   const [cropArea, setCropArea] = useState({
     x: Math.min(imageConfig.preCrop.x || 0, imageConfig.preCrop.width || 0),
@@ -53,6 +63,7 @@ export default function RotationView({
       setImageConfig({
         ...imageConfig,
         preCrop: {
+          ...imageConfig.preCrop,
           x: cropArea.x,
           y: cropArea.y,
           width: cropArea.width,
@@ -74,9 +85,11 @@ export default function RotationView({
     handleNextRoot();
   };
 
-  const handleMouseDown = (e) => {
-    // Get mouse position relative to the stage
-    const pos = e.target.getStage().getPointerPosition();
+  const handleMouseDown = (e: KonvaEventObject<MouseEvent>) => {
+    const stage = e.target.getStage();
+    if (!stage) return;
+    const pos = stage.getPointerPosition();
+    if (!pos) return;
     setIsDrawing(true);
     startPoint.current = { x: pos.x, y: pos.y };
 
@@ -89,11 +102,12 @@ export default function RotationView({
     });
   };
 
-  const handleMouseMove = (e) => {
+  const handleMouseMove = (e: KonvaEventObject<MouseEvent>) => {
     if (!isDrawing) return;
-
-    // Get mouse position relative to the stage
-    const pos = e.target.getStage().getPointerPosition();
+    const stage = e.target.getStage();
+    if (!stage) return;
+    const pos = stage.getPointerPosition();
+    if (!pos) return;
 
     // Calculate new width and height
     const newWidth = pos.x - startPoint.current.x;
@@ -122,7 +136,13 @@ export default function RotationView({
       setCropArea(normalizedCropArea);
       setImageConfig({
         ...imageConfig,
-        preCrop: normalizedCropArea,
+        preCrop: {
+          ...imageConfig.preCrop,
+          x: normalizedCropArea.x,
+          y: normalizedCropArea.y,
+          width: normalizedCropArea.width,
+          height: normalizedCropArea.height,
+        },
       });
     }
   };

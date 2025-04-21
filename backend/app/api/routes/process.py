@@ -45,10 +45,15 @@ async def apply_distortion_correction(
         image_file.write(await file.read())
 
     distances_ = {
-        (int(key.split(",")[0]), int(key.split(",")[1])): value
+        # (int(key.split(",")[0]), int(key.split(",")[1])): value
+        f"{key.split(',')[0].strip()},{key.split(',')[1].strip()}": value
         for key, value in json.loads(distances).items()
     }
+    print(f"{distances_=}")
     pixels = [(int(gcp[0]), int(gcp[1])) for gcp in json.loads(gcps)]
+
+    print(f"{pixels=}")
+    print(f"{distances_=}")
 
     dataset_config = DatasetConfig(
         image_dataset_dp=image_dp,

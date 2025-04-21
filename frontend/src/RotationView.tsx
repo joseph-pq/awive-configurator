@@ -4,14 +4,22 @@ import { Stage, Layer, Image as KonvaImage } from "react-konva";
 import { Button, Box, Typography, Slider, Container } from "@mui/material";
 import RotateRightIcon from "@mui/icons-material/RotateRight";
 
+interface RotationViewProps {
+  handlePrev: () => void;
+}
+
 export default function RotationView({
-  handleNext: handleNextRoot,
+  //handleNext: handleNextRoot,
   handlePrev,
-}) {
+}: RotationViewProps) {
   const [rotation, setRotation] = useState(0);
   const [scale, setScale] = useState(1);
-  const { image1, imageConfig } = useContext(ImagesContext);
-  const updateScale = (rot) => {
+  const context = useContext(ImagesContext);
+  if (!context) {
+    throw new Error("ImagesContext must be used within an ImagesProvider");
+  }
+  const { image1, imageConfig } = context;
+  const updateScale = (rot: number) => {
     setRotation(rot);
     const radians = (Math.PI / 180) * rot;
     const sin = Math.abs(Math.sin(radians));
@@ -68,7 +76,7 @@ export default function RotationView({
         <Slider
           value={rotation}
           onChange={(e, newValue) => {
-            updateScale(newValue);
+            updateScale(newValue as number);
           }}
           min={0}
           max={360}

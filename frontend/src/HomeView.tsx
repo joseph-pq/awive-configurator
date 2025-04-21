@@ -1,13 +1,28 @@
-import React, { useState, useRef, useContext, useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import { Stage, Layer, Image as KonvaImage } from "react-konva";
 import { Button, Box, Container } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { ImagesContext } from "./ImagesContext";
 
-export default function HomeView({handleNext:handleNextRoot}) {
-  const fileInputRef = useRef(null);
-  const { image, setImageSrc, imageSrc, imageConfig, setImageConfig } =
-    useContext(ImagesContext);
+interface HomeViewProps {
+  handleNext: () => void;
+}
+
+export default function HomeView({
+  handleNext: handleNextRoot,
+}: HomeViewProps) {
+  const fileInputRef = React.useRef<HTMLInputElement | null>(null);
+  const context = useContext(ImagesContext);
+  if (!context) {
+    throw new Error("ImagesContext must be used within an ImagesProvider");
+  }
+  const {
+    image,
+    setImageSrc,
+    imageSrc,
+    imageConfig,
+    setImageConfig,
+  } = context;
 
   const handleNext = () => {
     // check image is uploaded
@@ -16,17 +31,22 @@ export default function HomeView({handleNext:handleNextRoot}) {
       return;
     }
     handleNextRoot();
-  }
+  };
 
   // Handle image upload
-  const handleImageUpload = (e) => {
-    const newImageConfig = {...imageConfig};
-    const file = e.target.files[0];
-    newImageConfig.file = file
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newImageConfig = { ...imageConfig };
+    const files = e.target.files;
+    if (!files || files.length === 0) return; // bail if null or empty
+    const file = files[0];
+    newImageConfig.file = file;
     setImageConfig(newImageConfig);
     if (file) {
       const reader = new FileReader();
-      reader.onload = () => setImageSrc(reader.result);
+      reader.onload = () => {
+        const result = reader.result as string;
+        setImageSrc(result);
+      };
       reader.readAsDataURL(file);
     }
   };
@@ -107,7 +127,7 @@ export default function HomeView({handleNext:handleNextRoot}) {
         variant="contained"
         component="span"
         startIcon={<CloudUploadIcon />}
-        onClick={() => fileInputRef.current.click()}
+        onClick={() => fileInputRef.current?.click()}
       >
         Upload Image
       </Button>

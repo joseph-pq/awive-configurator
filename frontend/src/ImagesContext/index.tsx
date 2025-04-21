@@ -3,7 +3,7 @@ import { useLocalStorage } from "./useLocalStorage";
 import useImage from "use-image";
 
 interface Distance {
-  points: [number, number][];
+  points: [number, number];
   distance: number;
 }
 
@@ -27,7 +27,7 @@ interface PreCrop {
   width: number;
   height: number;
   heightLength: number;
-  HeightLengthNatural: number;
+  heightLengthNatural: number;
   heightNatural: number;
   widthLength: number;
   widthLengthNatural: number;
@@ -38,7 +38,7 @@ interface PreCrop {
 
 interface ImageConfig {
   cropArea: CropArea;
-  file: string | null;
+  file: string | File | null;
   height: number;
   height1: number;
   height2: number;
@@ -81,7 +81,34 @@ function ImagesProvider({ children }: { children: React.ReactNode }) {
     saveItem: setImageConfig,
     // loading: imageConfigLoading,
     // error: imageConfigError,
-  } = useLocalStorage("AWIVE_IMAGE_CONFIG", {});
+  } = useLocalStorage<ImageConfig>("AWIVE_IMAGE_CONFIG", {
+    cropArea: { x: 0, y: 0, width: 0, height: 0 },
+    file: null,
+    height: 0,
+    height1: 0,
+    height2: 0,
+    naturalHeight: 0,
+    naturalHeight1: 0,
+    naturalWidth: 0,
+    naturalWidth1: 0,
+    preCrop: {
+      x: 0,
+      y: 0,
+      width: 0,
+      height: 0,
+      heightLength: 0,
+      heightLengthNatural: 0,
+      heightNatural: 0,
+      widthLength: 0,
+      widthLengthNatural: 0,
+      widthNatural: 0,
+      xNatural: 0,
+      yNatural: 0
+    },
+    width: 0,
+    width1: 0,
+    width2: 0
+  });
   const {
     item: gcpPoints,
     saveItem: setGcpPoints,
@@ -93,7 +120,7 @@ function ImagesProvider({ children }: { children: React.ReactNode }) {
     saveItem: setDistances,
     // loading: distancesLoading,
     // error: distancesError,
-  } = useLocalStorage("AWIVE_DISTANCES", []);
+  } = useLocalStorage<Distance[]>("AWIVE_DISTANCES", []);
 
   return (
     <ImagesContext.Provider
@@ -118,3 +145,4 @@ function ImagesProvider({ children }: { children: React.ReactNode }) {
 }
 
 export { ImagesContext, ImagesProvider };
+export type { GcpPoint };

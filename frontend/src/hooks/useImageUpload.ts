@@ -1,12 +1,17 @@
-import { useState, useCallback } from 'react';
+import { useCallback } from 'react';
 import { ImageConfig } from '../types/image';
+import { ImagesContext } from '../ImagesContext';
+import { useContext } from 'react';
 
 export const useImageUpload = (initialConfig: ImageConfig) => {
-  const [imageSrc, setImageSrc] = useState<string | null>(null);
-  const [imageConfig, setImageConfig] = useState<ImageConfig>(initialConfig);
+  const context = useContext(ImagesContext);
+  if (!context) {
+    throw new Error("ImagesContext must be used within an ImagesProvider");
+  }
+  const { setImageSrc, setImageConfig } = context;
 
   const handleImageUpload = useCallback((file: File) => {
-    const newImageConfig = { ...imageConfig, file };
+    const newImageConfig = { ...initialConfig, file };
     setImageConfig(newImageConfig);
 
     const reader = new FileReader();
@@ -15,12 +20,9 @@ export const useImageUpload = (initialConfig: ImageConfig) => {
       setImageSrc(result);
     };
     reader.readAsDataURL(file);
-  }, [imageConfig]);
+  }, [initialConfig, setImageConfig, setImageSrc]);
 
   return {
-    imageSrc,
-    imageConfig,
-    setImageConfig,
     handleImageUpload
   };
 };

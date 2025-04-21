@@ -1,0 +1,49 @@
+import React, { useContext, useEffect } from "react";
+import { Container } from "@mui/material";
+import { ImagesContext } from "../../ImagesContext";
+import { ImageViewer } from "../../components/common/ImageViewer/ImageViewer";
+import { UploadButton } from "../../components/common/UploadButton/UploadButton";
+import { useImageUpload } from "../../hooks/useImageUpload";
+import { useImageScaling } from "../../hooks/useImageScaling";
+
+interface HomeViewProps {
+  handleNext: () => void;
+}
+
+export default function HomeView({ handleNext: handleNextRoot }: HomeViewProps) {
+  const context = useContext(ImagesContext);
+  if (!context) {
+    throw new Error("ImagesContext must be used within an ImagesProvider");
+  }
+
+  const { image, imageConfig, setImageConfig, setImageSrc } = context;
+  const { calculateImageDimensions } = useImageScaling();
+  const { handleImageUpload } = useImageUpload(imageConfig);
+
+  const handleNext = () => {
+    if (!image) {
+      alert("Please upload an image");
+      return;
+    }
+    handleNextRoot();
+  };
+
+  // Update image configuration when imageSrc changes
+  useEffect(() => {
+    if (!image) return;
+
+    const dimensions = calculateImageDimensions(
+      image.naturalWidth,
+      image.naturalHeight
+    );
+    setImageConfig({ ...imageConfig, ...dimensions });
+  }, [image, setImageConfig, calculateImageDimensions]);
+
+  return (
+    <Container sx={{ textAlign: "center", mt: 4 }}>
+      <UploadButton onFileSelect={handleImageUpload} />
+      <ImageViewer image={image} imageConfig={imageConfig} />
+      <button onClick={handleNext}>Next</button>
+    </Container>
+  );
+} 

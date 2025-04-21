@@ -1,26 +1,12 @@
-import React, { useState, useRef } from "react";
-import { Stage, Layer, Image as KonvaImage, Circle } from "react-konva";
+import React, { useState } from "react";
 import { ImagesProvider } from "./ImagesContext";
 
 import TabContext from "@mui/lab/TabContext";
 import TabPanel from "@mui/lab/TabPanel";
 
-import useImage from "use-image";
-import {
-  Toolbar,
-  AppBar,
-  Button,
-  Box,
-  Typography,
-  Slider,
-  Tab,
-  Container,
-} from "@mui/material";
-import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import RotateRightIcon from "@mui/icons-material/RotateRight";
-import SaveIcon from "@mui/icons-material/Save";
+import { Toolbar, AppBar, Box, Typography } from "@mui/material";
 import HomeView from "./HomeView";
-import OrthorectificationView from "./OrthorectificationView";
+import { OrthorectificationView } from "./views/OrthorectificationView/OrthorectificationView";
 import RotationView from "./RotationView";
 import PreCropView from "./PreCropView";
 
@@ -37,7 +23,7 @@ const TABS = [
     value: "4",
     component: <PreCropView />,
   },
-  { label: 'Rotation', value: '5', component: <RotationView /> },
+  { label: "Rotation", value: "5", component: <RotationView /> },
 ];
 
 export default function App() {
@@ -79,15 +65,6 @@ export default function App() {
           <Typography variant="h6" sx={{ mx: 1 }}>
             {TABS.find((tab) => tab.value === currentTab).label}
           </Typography>
-          {/* <Box sx={{ flexGrow: 1 }}> */}
-          {/*   {currentTab !== "1" && ( */}
-          {/*     <Button variant="contained" onClick={handlePrev} sx={{ mx: 1 }}> */}
-          {/*       Previous */}
-          {/*     </Button> */}
-          {/*   )} */}
-          {/*   {currentTab !== TABS[TABS.length - 1].value && ( */}
-          {/*   )} */}
-          {/* </Box> */}
         </Box>
         {TABS.map(({ value, component }) => (
           <TabPanel key={value} value={value}>

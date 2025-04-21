@@ -23,4 +23,4 @@ export const useImageUpload = (initialConfig: ImageConfig) => {
     setImageConfig,
     handleImageUpload
   };
-}; 
+};

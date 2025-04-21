@@ -6,9 +6,8 @@ interface ImageControlsProps {
   rotation: number;
   onRotationChange: ((value: number) => void) | null;
   onRotate90: (() => void) | null;
-  onPrevious: () => void;
-  onNext: () => void;
-  showNext?: boolean;
+  onPrevious: (() => void) | null;
+  onNext: (() => void) | null;
 }
 
 export const ImageControls: React.FC<ImageControlsProps> = ({
@@ -17,15 +16,16 @@ export const ImageControls: React.FC<ImageControlsProps> = ({
   onRotate90,
   onPrevious,
   onNext,
-  showNext = true,
 }) => {
   return (
     <Box sx={{ textAlign: "center", mt: 4 }}>
       <Box sx={{ flexGrow: 1, mb: 2 }}>
-        <Button variant="contained" onClick={onPrevious} sx={{ mx: 1 }}>
-          Previous
-        </Button>
-        {showNext && (
+        {onPrevious && (
+          <Button variant="contained" onClick={onPrevious} sx={{ mx: 1 }}>
+            Previous
+          </Button>
+        )}
+        {onNext && (
           <Button variant="contained" onClick={onNext} sx={{ mx: 1 }}>
             Next
           </Button>

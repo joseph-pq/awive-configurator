@@ -5,8 +5,9 @@ import TabContext from "@mui/lab/TabContext";
 import TabPanel from "@mui/lab/TabPanel";
 
 import { Toolbar, AppBar, Box, Typography } from "@mui/material";
-import HomeView from "./HomeView";
+// import HomeView from "./HomeView";
 import { OrthorectificationView } from "./views/OrthorectificationView/OrthorectificationView";
+import { HomeView } from "./views/HomeView/HomeView";
 import RotationView from "./RotationView";
 import PreCropView from "./PreCropView";
 

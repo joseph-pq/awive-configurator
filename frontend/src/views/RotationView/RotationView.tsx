@@ -47,7 +47,6 @@ export default function RotationView({ handlePrev }: RotationViewProps) {
         onRotate90={() => updateScale((rotation + 90) % 360)}
         onPrevious={handlePrev}
         onNext={() => {}}
-        showNext={false}
       />
       <ImageViewer image={image1} imageConfig={imageConfig}>
         <KonvaImage
@@ -71,4 +70,4 @@ export default function RotationView({ handlePrev }: RotationViewProps) {
       </ImageViewer>
     </>
   );
-} 
+}

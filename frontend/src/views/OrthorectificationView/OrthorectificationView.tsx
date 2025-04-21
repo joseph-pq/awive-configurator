@@ -268,7 +268,6 @@ React.useEffect(() => {
         onRotate90={null}
         onPrevious={handlePrev}
         onNext={handleNext}
-        showNext={true}
       />
       <ImageViewer
         image={image}

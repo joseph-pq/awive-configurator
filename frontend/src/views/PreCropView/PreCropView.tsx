@@ -151,7 +151,6 @@ export default function PreCropView({
         onRotate90={null}
         onPrevious={handlePrev}
         onNext={handleNext}
-        showNext={true}
       />
       <ImageViewer
         image={image1}
@@ -175,4 +174,4 @@ export default function PreCropView({
       </ImageViewer>
     </>
   );
-} 
+}

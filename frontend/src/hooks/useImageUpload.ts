@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { ImageConfig } from '../types/image';
-import { ImagesContext } from '../ImagesContext';
+import { ImagesContext } from '../contexts/images';
 import { useContext } from 'react';
 
 export const useImageUpload = (initialConfig: ImageConfig) => {

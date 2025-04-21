@@ -1,7 +1,7 @@
 import React, { useState, useContext } from "react";
-import { ImagesContext } from "../../ImagesContext";
+import { ImagesContext } from "../../contexts/images";
 import { ImageControls } from "../../components/features/ImageControls/ImageControls";
-import {  Box  } from "@mui/material";
+import {  Box, Container } from "@mui/material";
 import { Stage, Layer, Image as KonvaImage } from "react-konva";
 
 interface RotationViewProps {

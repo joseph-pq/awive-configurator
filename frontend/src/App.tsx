@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ImagesProvider } from "./ImagesContext";
+import { ImagesProvider } from "./contexts/images";
 
 import TabContext from "@mui/lab/TabContext";
 import TabPanel from "@mui/lab/TabPanel";
@@ -11,19 +11,19 @@ import { PreCropView } from "./views/PreCropView/PreCropView";
 import { RotationView } from "./views/RotationView/RotationView";
 
 const TABS = [
-  { label: "Home", value: "1", component: <HomeView /> },
+  { label: "Home", value: "1", component: HomeView },
   // { label: 'Image Correction', value: '2', component: <ImageCorrectionView /> },
   {
     label: "Orthorectification",
     value: "3",
-    component: <OrthorectificationView />,
+    component: OrthorectificationView,
   },
   {
     label: "PreCrop",
     value: "4",
-    component: <PreCropView />,
+    component: PreCropView,
   },
-  { label: "Rotation", value: "5", component: <RotationView /> },
+  { label: "Rotation", value: "5", component: RotationView },
 ];
 
 export default function App() {
@@ -63,12 +63,12 @@ export default function App() {
           }}
         >
           <Typography variant="h6" sx={{ mx: 1 }}>
-            {TABS.find((tab) => tab.value === currentTab).label}
+            {TABS.find((tab) => tab.value === currentTab)?.label}
           </Typography>
         </Box>
-        {TABS.map(({ value, component }) => (
+        {TABS.map(({ value, component: Component }) => (
           <TabPanel key={value} value={value}>
-            {React.cloneElement(component, { handleNext, handlePrev })}
+            <Component handleNext={handleNext} handlePrev={handlePrev} />
           </TabPanel>
         ))}
       </TabContext>

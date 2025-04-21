@@ -1,9 +1,10 @@
 import React, { useState, useContext, useRef } from "react";
-import { ImagesContext } from "../../ImagesContext";
+import { ImagesContext } from "../../contexts/images";
 import { ImageViewer } from "../../components/common/ImageViewer/ImageViewer";
 import { ImageControls } from "../../components/features/ImageControls/ImageControls";
 import { Rect } from "react-konva";
 import { KonvaEventObject } from "konva/lib/Node";
+import { Container } from "@mui/material";
 
 interface PreCropViewProps {
   handleNext: () => void;

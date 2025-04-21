@@ -1,7 +1,7 @@
 import React, { useState, useContext } from "react";
 import { Box } from "@mui/material";
 import { Stage, Layer, Line, Image as KonvaImage } from "react-konva";
-import { ImagesContext } from "../../ImagesContext";
+import { ImagesContext } from "../../contexts/images";
 import { ImageViewer } from "../../components/common/ImageViewer/ImageViewer";
 import { ImageControls } from "../../components/features/ImageControls/ImageControls";
 import { DistanceDialog } from "../../components/features/DistanceDialog/DistanceDialog";

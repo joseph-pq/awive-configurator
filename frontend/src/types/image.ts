@@ -34,4 +34,4 @@ export interface ImageConfig {
   width: number;
   width1: number;
   width2: number;
-} 
+};

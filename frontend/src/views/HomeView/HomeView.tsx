@@ -1,7 +1,7 @@
 import React, { useContext, useEffect } from "react";
 import { ImageControls } from "../../components/features/ImageControls/ImageControls";
 import { Container } from "@mui/material";
-import { ImagesContext } from "../../ImagesContext";
+import { ImagesContext } from "../../contexts/images";
 import { ImageViewer } from "../../components/common/ImageViewer/ImageViewer";
 import { UploadButton } from "../../components/common/UploadButton/UploadButton";
 import { useImageUpload } from "../../hooks/useImageUpload";

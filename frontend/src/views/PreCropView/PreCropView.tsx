@@ -10,10 +10,10 @@ interface PreCropViewProps {
   handlePrev: () => void;
 }
 
-export default function PreCropView({
+export const PreCropView: React.FC<PreCropViewProps> = ({
   handleNext: handleNextRoot,
   handlePrev,
-}: PreCropViewProps) {
+}) => {
   const context = useContext(ImagesContext);
   if (!context) {
     throw new Error("ImagesContext must be used within an ImagesProvider");
@@ -24,7 +24,10 @@ export default function PreCropView({
     x: Math.min(imageConfig.preCrop.x || 0, imageConfig.preCrop.width || 0),
     y: Math.min(imageConfig.preCrop.y || 0, imageConfig.preCrop.height || 0),
     width: Math.max(imageConfig.preCrop.x || 0, imageConfig.preCrop.width || 0),
-    height: Math.max(imageConfig.preCrop.y || 0, imageConfig.preCrop.height || 0),
+    height: Math.max(
+      imageConfig.preCrop.y || 0,
+      imageConfig.preCrop.height || 0,
+    ),
   });
   const startPoint = useRef({ x: 0, y: 0 });
 
@@ -38,10 +41,14 @@ export default function PreCropView({
       return;
     }
 
-    const xNatural = cropArea.x / imageConfig.width1 * imageConfig.naturalWidth1;
-    const yNatural = cropArea.y / imageConfig.height1 * imageConfig.naturalHeight1;
-    const widthNatural = cropArea.width / imageConfig.width1 * imageConfig.naturalWidth1;
-    const heightNatural = cropArea.height / imageConfig.height1 * imageConfig.naturalHeight1;
+    const xNatural =
+      (cropArea.x / imageConfig.width1) * imageConfig.naturalWidth1;
+    const yNatural =
+      (cropArea.y / imageConfig.height1) * imageConfig.naturalHeight1;
+    const widthNatural =
+      (cropArea.width / imageConfig.width1) * imageConfig.naturalWidth1;
+    const heightNatural =
+      (cropArea.height / imageConfig.height1) * imageConfig.naturalHeight1;
     const widthLengthNatural = widthNatural - xNatural;
     const heightLengthNatural = heightNatural - yNatural;
 
@@ -154,7 +161,11 @@ export default function PreCropView({
       />
       <ImageViewer
         image={image1}
-        imageConfig={imageConfig}
+        imageConfig={{
+          ...imageConfig,
+          width: imageConfig.width1,
+          height: imageConfig.height1,
+        }}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
@@ -174,4 +185,4 @@ export default function PreCropView({
       </ImageViewer>
     </>
   );
-}
+};

@@ -8,7 +8,7 @@ import { Toolbar, AppBar, Box, Typography } from "@mui/material";
 import { OrthorectificationView } from "./views/OrthorectificationView/OrthorectificationView";
 import { HomeView } from "./views/HomeView/HomeView";
 import RotationView from "./RotationView";
-import PreCropView from "./PreCropView";
+import { PreCropView } from "./views/PreCropView/PreCropView";
 
 const TABS = [
   { label: "Home", value: "1", component: <HomeView /> },

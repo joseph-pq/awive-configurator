@@ -6,6 +6,7 @@ import { HomeView } from "./components/pages/HomeView/HomeView";
 import { OrthorectificationView } from "./components/pages/OrthorectificationView/OrthorectificationView";
 import { PreCropView } from "./components/pages/PreCropView/PreCropView";
 import { RotationView } from "./components/pages/RotationView/RotationView";
+import { FinalView } from "./components/pages/FinalView/FinalView";
 import { useTabNavigation } from "./hooks/useTabNavigation";
 
 const TABS = [
@@ -22,6 +23,7 @@ const TABS = [
     component: PreCropView,
   },
   { label: "Rotation", value: "5", component: RotationView },
+  { label: "Final", value: "6", component: FinalView },
 ];
 
 export default function App() {

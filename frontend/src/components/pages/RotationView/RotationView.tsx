@@ -5,7 +5,7 @@ import { Box } from "@mui/material";
 import { Stage, Layer, Image as KonvaImage } from "react-konva";
 import { TabComponentProps } from "../../../types/tabs";
 
-export const RotationView: React.FC<TabComponentProps> = ({ handlePrev }) => {
+export const RotationView: React.FC<TabComponentProps> = ({ handlePrev, handleNext }) => {
   const [rotation, setRotation] = useState(0);
   const [scale, setScale] = useState(1);
   const context = useContext(ImagesContext);
@@ -43,7 +43,7 @@ export const RotationView: React.FC<TabComponentProps> = ({ handlePrev }) => {
         onRotationChange={updateScale}
         onRotate90={() => updateScale((rotation + 90) % 360)}
         onPrevious={handlePrev}
-        onNext={null}
+        onNext={handleNext}
       />
       <Box mt={3} sx={{ display: "flex", justifyContent: "center" }}>
         {image1 &&

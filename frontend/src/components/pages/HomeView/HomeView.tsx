@@ -1,11 +1,11 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useCallback } from "react";
 import { ImageControls } from "../../features/ImageControls/ImageControls";
 import { Container } from "@mui/material";
 import { ImagesContext } from "../../../contexts/images";
 import { ImageViewer } from "../../shared/ImageViewer/ImageViewer";
 import { UploadButton } from "../../shared/UploadButton/UploadButton";
 import { useImageUpload } from "../../../hooks/useImageUpload";
-import { useImageScaling } from "../../../hooks/useImageScaling";
+import { computeImageDimensions } from "../../../hooks/useImageScaling";
 import { TabComponentProps } from "../../../types/tabs";
 
 export const HomeView: React.FC<TabComponentProps> = ({
@@ -15,10 +15,10 @@ export const HomeView: React.FC<TabComponentProps> = ({
   if (!context) {
     throw new Error("ImagesContext must be used within an ImagesProvider");
   }
-  const { image, imageConfig, setImageConfig } = context;
+  const { imageOriginal: image, session, setSession } = context;
 
-  const { calculateImageDimensions } = useImageScaling();
-  const { handleImageUpload } = useImageUpload(imageConfig);
+  const computeImageDimensionsCB = useCallback(computeImageDimensions, []);
+  const { handleImageUpload } = useImageUpload(session);
 
   const handleNext = () => {
     if (!image) {
@@ -32,12 +32,12 @@ export const HomeView: React.FC<TabComponentProps> = ({
   useEffect(() => {
     if (!image) return;
 
-    const dimensions = calculateImageDimensions(
+    const newHomeView = computeImageDimensionsCB(
       image.naturalWidth,
       image.naturalHeight,
     );
-    setImageConfig({ ...imageConfig, ...dimensions });
-  }, [image, setImageConfig, calculateImageDimensions]);
+    setSession({ ...session, homeView: newHomeView });
+  }, [image, computeImageDimensionsCB]);
 
   return (
     <Container sx={{ textAlign: "center", mt: 4 }}>
@@ -48,7 +48,7 @@ export const HomeView: React.FC<TabComponentProps> = ({
         onPrevious={null}
         onNext={handleNext}
       />
-      <ImageViewer image={image} imageConfig={imageConfig} />
+      <ImageViewer image={image} imageConfig={session.homeView} />
       <UploadButton onFileSelect={handleImageUpload} />
     </Container>
   );

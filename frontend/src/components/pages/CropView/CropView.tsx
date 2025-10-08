@@ -10,7 +10,7 @@ import { KonvaEventObject } from "konva/lib/Node";
 import { TabComponentProps } from "../../../types/tabs";
 
 
-export const PreCropView: React.FC<TabComponentProps> = ({
+export const CropView: React.FC<TabComponentProps> = ({
   handleNext: handleNextRoot,
   handlePrev,
 }) => {
@@ -18,17 +18,17 @@ export const PreCropView: React.FC<TabComponentProps> = ({
   if (!context) {
     throw new Error("ImagesContext must be used within an ImagesProvider");
   }
-  const { imageOrthorectified, session, setSession, setImgSrcPreCropped } = context;
-  const toOriginalWidth = useCallback((width: number) => (width / session.orthoView.scaledWidth) * session.orthoView.originalWidth, [session.orthoView]);
+  const { imageRotated, session, setSession, setImgSrcCropped } = context;
+  const toOriginalWidth = useCallback((width: number) => (width / session.rotationView.scaledWidth) * session.rotationView.originalWidth, [session.rotationView]);
   const [loading, setLoading] = useState<boolean>(false);
   const computeImageDimensionsCB = useCallback(computeImageDimensions, []);
-  const toOriginalHeight = useCallback((height: number) => (height / session.orthoView.scaledHeight) * session.orthoView.originalHeight, [session.orthoView]);
+  const toOriginalHeight = useCallback((height: number) => (height / session.rotationView.scaledHeight) * session.rotationView.originalHeight, [session.rotationView]);
   const [isDrawing, setIsDrawing] = useState(false);
   const [cropArea, setCropArea] = useState({
-    x1: Math.min(session.preCrop.x1 || 0, session.preCrop.x2 || 0),
-    y1: Math.min(session.preCrop.y1 || 0, session.preCrop.y2 || 0),
-    x2: Math.max(session.preCrop.x1 || 0, session.preCrop.x2 || 0),
-    y2: Math.max(session.preCrop.y1 || 0, session.preCrop.y2 || 0),
+    x1: Math.min(session.crop.x1 || 0, session.crop.x2 || 0),
+    y1: Math.min(session.crop.y1 || 0, session.crop.y2 || 0),
+    x2: Math.max(session.crop.x1 || 0, session.crop.x2 || 0),
+    y2: Math.max(session.crop.y1 || 0, session.crop.y2 || 0),
   });
 
   const handleNext = async () => {
@@ -67,13 +67,13 @@ export const PreCropView: React.FC<TabComponentProps> = ({
       formData.append("y1", y1Natural.toString());
       formData.append("x2", x2Natural.toString());
       formData.append("y2", y2Natural.toString());
-      // Given imageOrthorectified is an HTMLImageElement, we need to convert it to a Blob
-      if (!imageOrthorectified) {
+      // Given imageRotated is an HTMLImageElement, we need to convert it to a Blob
+      if (!imageRotated) {
         throw new Error("No orthorectified image available");
       }
-      const imgResponse = await fetch(imageOrthorectified.src);
+      const imgResponse = await fetch(imageRotated.src);
       const imgBlob = await imgResponse.blob();
-      formData.append("file", imgBlob, "orthorectified_image.png");
+      formData.append("file", imgBlob, "rotated_image.png");
 
       const response = await fetch(`${API_URL}/process/crop/`, {
         method: "POST",
@@ -89,7 +89,7 @@ export const PreCropView: React.FC<TabComponentProps> = ({
       img.onload = () => {
         const dims = computeImageDimensionsCB(img.width, img.height);
         setSession({...session, preCropView: dims });
-        setImgSrcPreCropped(imageUrl);
+        setImgSrcCropped(imageUrl);
         handleNextRoot();
       };
       img.src = imageUrl;
@@ -144,7 +144,7 @@ export const PreCropView: React.FC<TabComponentProps> = ({
     setCropArea(normalizedCropArea);
   };
 
-  if (!imageOrthorectified) {
+  if (!imageRotated) {
     return null;
   }
 
@@ -158,8 +158,8 @@ export const PreCropView: React.FC<TabComponentProps> = ({
         onNext={handleNext}
       />
       <ImageViewer
-        image={imageOrthorectified}
-        imageConfig={session.orthoView}
+        image={imageRotated}
+        imageConfig={session.rotationView}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}

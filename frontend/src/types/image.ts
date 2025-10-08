@@ -1,37 +1,65 @@
 export interface CropArea {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+  x1Natural: number;
+  y1Natural: number;
+  x2Natural: number;
+  y2Natural: number;
 }
 
 export interface PreCrop {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  heightLength: number;
-  heightLengthNatural: number;
-  heightNatural: number;
-  widthLength: number;
-  widthLengthNatural: number;
-  widthNatural: number;
-  xNatural: number;
-  yNatural: number;
+  // Upper-Left corner in displayed image coordinates
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+  // Size in displayed image coordinates
+  // width: number;
+  // height: number;
+  // heightLength: number;
+  // heightLengthNatural: number;
+  // heightNatural: number;
+  // widthLength: number;
+  // widthLengthNatural: number;
+  // widthNatural: number;
+  // xNatural: number;
+  // yNatural: number;
 }
 
 export interface ImageConfig {
   cropArea: CropArea;
   file: string | File | null;
-  height: number;
+  scaledHeight: number;
   height1: number;
   height2: number;
-  naturalHeight: number;
+  originalHeight: number;
   naturalHeight1: number;
-  naturalWidth: number;
+  originalWidth: number;
   naturalWidth1: number;
   preCrop: PreCrop;
-  width: number;
+  scaledWidth: number;
   width1: number;
   width2: number;
 };
+
+
+
+export interface ImageView {
+  scaledWidth: number;
+  scaledHeight: number;
+  originalWidth: number;
+  originalHeight: number;
+}
+
+export interface Session {
+  file: string | File | null;
+  homeView: ImageView;
+  orthoView: ImageView;
+  preCropView: ImageView;
+  rotationView: ImageView;
+  cropView: ImageView;
+  preCrop: CropArea;
+  crop: CropArea;
+}

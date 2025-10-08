@@ -1,4 +1,5 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useCallback } from "react";
+import { computeImageDimensions } from "../../../hooks/useImageScaling";
 import { Box } from "@mui/material";
 import { Stage, Layer, Line, Image as KonvaImage } from "react-konva";
 import { ImagesContext } from "../../../contexts/images";
@@ -30,6 +31,7 @@ export const OrthorectificationView: React.FC<TabComponentProps> = ({
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const [openDistanceDialog, setOpenDistanceDialog] = useState<boolean>(false);
   const [selectedGcpPair, setSelectedGcpPair] = useState<[number, number] | null>(null);
+  const computeImageDimensionsCB = useCallback(computeImageDimensions, []);
   const [distanceValue, setDistanceValue] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -38,14 +40,14 @@ export const OrthorectificationView: React.FC<TabComponentProps> = ({
     throw new Error("ImagesContext must be used within an ImagesProvider");
   }
   const {
-    image,
-    imageConfig,
-    setImageConfig,
+    imageOriginal,
+    session,
+    setSession,
     gcpPoints,
     setGcpPoints,
     distances,
     setDistances,
-    setImageSrc1,
+    setImgSrcOrthorectified,
   } = context;
 
   const handleNext = async () => {
@@ -72,11 +74,11 @@ export const OrthorectificationView: React.FC<TabComponentProps> = ({
         out_distances[key] = dist.distance;
       });
       const formData = new FormData();
-      formData.append("file", imageConfig.file as Blob);
+      formData.append("file", session.file as Blob);
       formData.append("gcps", JSON.stringify(out_gcps));
       formData.append("distances", JSON.stringify(out_distances));
 
-      const response = await fetch(`${API_URL}/process/`, {
+      const response = await fetch(`${API_URL}/process/orthorectification/`, {
         method: "POST",
         body: formData,
       });
@@ -92,34 +94,11 @@ export const OrthorectificationView: React.FC<TabComponentProps> = ({
       img.onload = () => {
         const width = img.width;
         const height = img.height;
-        if (width > 1024 || height > 768) {
-          if (width / 1024 > height / 768) {
-            setImageConfig({
-              ...imageConfig,
-              width1: 1024,
-              height1: (1024 / width) * height,
-              naturalWidth1: width,
-              naturalHeight1: height,
-            });
-          } else {
-            setImageConfig({
-              ...imageConfig,
-              width1: (768 / height) * width,
-              height1: 768,
-              naturalWidth1: width,
-              naturalHeight1: height,
-            });
-          }
-        } else {
-          setImageConfig({
-            ...imageConfig,
-            width1: width,
-            height1: height,
-            naturalWidth1: width,
-            naturalHeight1: height,
-          });
-        }
-        setImageSrc1(imageUrl);
+        setSession({
+          ...session,
+          orthoView: computeImageDimensionsCB(width, height),
+        });
+        setImgSrcOrthorectified(imageUrl);
         handleNextRoot();
       };
       img.src = imageUrl;
@@ -140,8 +119,8 @@ export const OrthorectificationView: React.FC<TabComponentProps> = ({
     const newPoint: GcpPoint = {
       x: point.x,
       y: point.y,
-      x_natural: (point.x / imageConfig.height) * imageConfig.naturalHeight,
-      y_natural: (point.y / imageConfig.width) * imageConfig.naturalWidth
+      x_natural: (point.x / session.homeView.scaledHeight) * session.homeView.originalHeight,
+      y_natural: (point.y / session.homeView.scaledWidth) * session.homeView.originalWidth
     };
     if (Object.keys(gcpPoints).length >= 4) {
       return;
@@ -173,7 +152,7 @@ export const OrthorectificationView: React.FC<TabComponentProps> = ({
     setGcpPoints({ ...gcpPoints, [key]: newPoint });
   };
 
-React.useEffect(() => {
+  React.useEffect(() => {
     const newDistances = [];
     for (let i = 0; i < 3; i++) {
       for (let j = i + 1; j < 4; j++) {
@@ -253,7 +232,7 @@ React.useEffect(() => {
     }
   };
 
-  if (!image) {
+  if (!imageOriginal) {
     return null;
   }
 
@@ -267,8 +246,8 @@ React.useEffect(() => {
         onNext={handleNext}
       />
       <ImageViewer
-        image={image}
-        imageConfig={imageConfig}
+        image={imageOriginal}
+        imageConfig={session.homeView}
         onClick={handleCanvasClick}
       >
         {distances.map((dist, index) => (
@@ -313,11 +292,11 @@ React.useEffect(() => {
           >
             <Layer>
               <KonvaImage
-                image={image}
+                image={imageOriginal}
                 x={cursorPos.x}
                 y={cursorPos.y}
-                width={imageConfig.width}
-                height={imageConfig.height}
+                width={session.homeView.scaledWidth}
+                height={session.homeView.scaledHeight}
                 offsetX={cursorPos.x / ZOOM_SCALE}
                 offsetY={cursorPos.y / ZOOM_SCALE}
                 scaleX={ZOOM_SCALE} // Zoom in the floating window

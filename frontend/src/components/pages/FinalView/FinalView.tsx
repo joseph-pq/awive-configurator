@@ -42,17 +42,17 @@ preprocessing:
   ppm: 262  # do not change
   rotate_image: 250
   pre_roi:
-  - - ${config.preCrop?.x || 0}
-    - ${config.preCrop?.y || 0}
-  - - ${config.preCrop?.width || 0}
-    - ${config.preCrop?.height || 0}
   roi:
-  - - ${config.cropArea?.x || 0}
-    - ${config.cropArea?.y || 0}
-  - - ${config.cropArea?.width || 0}
-    - ${config.cropArea?.height || 0}
 `;
+  // - - ${config.preCrop?.x || 0}
+  //   - ${config.preCrop?.y || 0}
+  // - - ${config.preCrop?.width || 0}
+  //   - ${config.preCrop?.height || 0}
   };
+  // - - ${config.cropArea?.x || 0}
+  //   - ${config.cropArea?.y || 0}
+  // - - ${config.cropArea?.width || 0}
+  //   - ${config.cropArea?.height || 0}
 
   const colorizeYaml = (yamlString: string): React.ReactNode => {
     // Split the YAML string into lines to process each line individually

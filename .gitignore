@@ -181,3 +181,4 @@ pyrightconfig.json
 *.json
 .envrc
 out.png
+backend/*.png

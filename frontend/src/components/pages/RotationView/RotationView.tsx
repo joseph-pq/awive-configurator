@@ -1,18 +1,20 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useCallback } from "react";
+import { API_URL } from "../../../constants/api";
+import { ImageViewer } from "../../shared/ImageViewer/ImageViewer";
+import { computeImageDimensions } from "../../../hooks/useImageScaling";
 import { ImagesContext } from "../../../contexts/images";
 import { ImageControls } from "../../features/ImageControls/ImageControls";
-import { Box } from "@mui/material";
-import { Stage, Layer, Image as KonvaImage } from "react-konva";
 import { TabComponentProps } from "../../../types/tabs";
 
-export const RotationView: React.FC<TabComponentProps> = ({ handlePrev, handleNext }) => {
+export const RotationView: React.FC<TabComponentProps> = ({ handlePrev, handleNext: handleNextRoot }) => {
   const [rotation, setRotation] = useState(0);
   const [scale, setScale] = useState(1);
   const context = useContext(ImagesContext);
+  const computeImageDimensionsCB = useCallback(computeImageDimensions, []);
   if (!context) {
     throw new Error("ImagesContext must be used within an ImagesProvider");
   }
-  const { image1, imageConfig } = context;
+  const { imagePreCropped, session, setSession, setImgSrcRotated} = context;
 
   const updateScale = (rot: number) => {
     setRotation(rot);
@@ -20,8 +22,8 @@ export const RotationView: React.FC<TabComponentProps> = ({ handlePrev, handleNe
     const sin = Math.abs(Math.sin(radians));
     const cos = Math.abs(Math.cos(radians));
 
-    const frameWidth = imageConfig.preCrop.widthLengthNatural;
-    const frameHeight = imageConfig.preCrop.heightLengthNatural;
+    const frameWidth = session.preCropView.originalWidth;
+    const frameHeight = session.preCropView.originalHeight;
 
     const boundingBoxWidth = frameWidth * cos + frameHeight * sin;
     const boundingBoxHeight = frameWidth * sin + frameHeight * cos;
@@ -31,8 +33,42 @@ export const RotationView: React.FC<TabComponentProps> = ({ handlePrev, handleNe
 
     setScale(Math.min(scaleX, scaleY));
   };
+  const handleNext = async () => {
+    try {
+      const formData = new FormData();
+      if (!imagePreCropped) {
+        alert("No image to process");
+        return;
+      }
+      const imgResponse = await fetch(imagePreCropped.src);
+      const imgBlob = await imgResponse.blob();
+      formData.append("file", imgBlob, "preCroppedImage.png");
+      const rot = -rotation
+      formData.append("rotation", rot.toString());
+      const response = await fetch(`${API_URL}/process/rotate/`, {
+        method: "POST",
+        body: formData,
+      });
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.statusText}`);
+      }
+      const blob = await response.blob();
+      const rotatedImageUrl = URL.createObjectURL(blob);
+      const img = new Image();
+      img.onload = () => {
+        const dims = computeImageDimensionsCB(img.width, img.height);
+        setSession({ ...session, rotationView: dims });
+        setImgSrcRotated(rotatedImageUrl);
+        handleNextRoot();
+      };
+      img.src = rotatedImageUrl;
+    } catch (error) {
+      console.error("Error during rotation submission:", error);
+      alert("An error occurred while processing the image. Please try again.");
+    }
+  };
 
-  if (!image1) {
+  if (!imagePreCropped) {
     return null;
   }
 
@@ -45,37 +81,12 @@ export const RotationView: React.FC<TabComponentProps> = ({ handlePrev, handleNe
         onPrevious={handlePrev}
         onNext={handleNext}
       />
-      <Box mt={3} sx={{ display: "flex", justifyContent: "center" }}>
-        {image1 &&
-          imageConfig.preCrop.widthLength > 0 &&
-          imageConfig.preCrop.heightLength > 0 && (
-            <Stage
-              width={imageConfig.preCrop.widthLength}
-              height={imageConfig.preCrop.heightLength}
-            >
-              <Layer>
-                <KonvaImage
-                  image={image1}
-                  x={imageConfig.preCrop.widthLength / 2}
-                  y={imageConfig.preCrop.heightLength / 2}
-                  width={imageConfig.preCrop.widthLength}
-                  height={imageConfig.preCrop.heightLength}
-                  rotation={rotation}
-                  offsetX={imageConfig.preCrop.widthLength / 2}
-                  offsetY={imageConfig.preCrop.heightLength / 2}
-                  scaleX={scale}
-                  scaleY={scale}
-                  crop={{
-                    x: imageConfig.preCrop.xNatural,
-                    y: imageConfig.preCrop.yNatural,
-                    width: imageConfig.preCrop.widthNatural,
-                    height: imageConfig.preCrop.heightNatural,
-                  }}
-                />
-              </Layer>
-            </Stage>
-          )}
-      </Box>
+      <ImageViewer
+        image={imagePreCropped}
+        imageConfig={session.preCropView}
+        rotation={rotation}
+        scale={scale}
+      />
     </>
   );
 };

@@ -1,6 +1,6 @@
 version = 1
 revision = 2
-requires-python = ">=3.11"
+requires-python = ">=3.11.1"
 resolution-markers = [
     "platform_machine == 'arm64' and sys_platform == 'darwin'",
     "platform_machine == 'aarch64' and sys_platform == 'linux'",
@@ -41,67 +41,24 @@ wheels = [
 
 [[package]]
 name = "awive"
-version = "3.2.0"
-source = { editable = "../awive" }
+version = "3.2.2"
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "numpy" },
     { name = "opencv-python" },
     { name = "pydantic" },
 ]
-
-[package.metadata]
-requires-dist = [
-    { name = "numpy", specifier = ">=1.26,<1.27" },
-    { name = "opencv-python", specifier = ">=4.6,<4.7" },
-    { name = "pydantic", specifier = ">=2.7.4" },
-]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "dvc-gdrive", specifier = ">=3.0.1" },
-    { name = "ipython", specifier = ">=8.18.1" },
-    { name = "matplotlib", specifier = ">=3.9.2" },
-    { name = "mkdocs", specifier = ">=1.6.1" },
-    { name = "mkdocs-material", specifier = ">=9.5.34" },
-    { name = "mkdocstrings-python", specifier = ">=1.11.1" },
-    { name = "opencv-stubs", specifier = ">=0.0.11" },
-    { name = "pyfzf", specifier = ">=0.3.1" },
-    { name = "pyqt5", specifier = ">=5.15.11" },
-    { name = "pytest", specifier = ">=8.3.5" },
-    { name = "pytest-cov", specifier = ">=6.1.1" },
-    { name = "requests", specifier = ">=2.31.0" },
-    { name = "tk", specifier = ">=0.1.0" },
-    { name = "typer", specifier = ">=0.15.2" },
-    { name = "types-pyyaml", specifier = ">=6.0.12.20241230" },
-    { name = "types-requests", specifier = ">=2.31.0.20240125" },
-]
-docs = [
-    { name = "mkdocs", specifier = ">=1.6.1" },
-    { name = "mkdocs-material", specifier = ">=9.5.34" },
-    { name = "mkdocstrings-python", specifier = ">=1.11.1" },
-]
-plots = [
-    { name = "matplotlib", specifier = ">=3.9.2" },
-    { name = "pyqt5", specifier = ">=5.15.11" },
-    { name = "tk", specifier = ">=0.1.0" },
-]
-stubs = [
-    { name = "opencv-stubs", specifier = ">=0.0.11" },
-    { name = "typer", specifier = ">=0.15.2" },
-    { name = "types-pyyaml", specifier = ">=6.0.12.20241230" },
-    { name = "types-requests", specifier = ">=2.31.0.20240125" },
-]
-test = [
-    { name = "pytest", specifier = ">=8.3.5" },
-    { name = "pytest-cov", specifier = ">=6.1.1" },
+sdist = { url = "https://files.pythonhosted.org/packages/88/bf/88e321f4451bc46c6b58036f8c1deca68c9aa240d5409312c63e89114a24/awive-3.2.2.tar.gz", hash = "sha256:1fefcdbd92a9da68b74fa373ddc956be8e3ebbf86e94567407067c079b67d63e", size = 31352, upload-time = "2025-10-11T20:26:01.835Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/a3/82/9bcd2414c86e60feccaf7f0bec98024a0c8e537e0e5ae6203c469c180d9f/awive-3.2.2-py3-none-any.whl", hash = "sha256:f92f193450772f39e94fa3063df02f3d5a1fb284a93ec56ea6c949e805d5e2b7", size = 39605, upload-time = "2025-10-11T20:26:00.824Z" },
 ]
 
 [[package]]
 name = "awive-configurator"
 version = "0.1.0"
-source = { editable = "." }
+source = { virtual = "." }
 dependencies = [
-    { name = "npyplotter" },
+    { name = "awive" },
     { name = "python-multipart" },
     { name = "scipy" },
     { name = "typer" },
@@ -112,10 +69,10 @@ backend = [
     { name = "fastapi", extra = ["standard"] },
 ]
 dev = [
-    { name = "awive" },
     { name = "debugpy" },
     { name = "ipython" },
     { name = "matplotlib" },
+    { name = "npyplotter" },
     { name = "opencv-stubs" },
     { name = "pyfzf" },
     { name = "pyqt6" },
@@ -124,7 +81,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "npyplotter", git = "https://github.com/joseph-pq/npy-plotter.git" },
+    { name = "awive", specifier = ">=3.2.2" },
     { name = "python-multipart", specifier = ">=0.0.20" },
     { name = "scipy", specifier = ">=1.15.2" },
     { name = "typer", specifier = ">=0.15.2" },
@@ -133,10 +90,10 @@ requires-dist = [
 [package.metadata.requires-dev]
 backend = [{ name = "fastapi", extras = ["standard"], specifier = ">=0.115.12" }]
 dev = [
-    { name = "awive", editable = "../awive" },
     { name = "debugpy", specifier = ">=1.8.5" },
     { name = "ipython", specifier = ">=9.0.2" },
     { name = "matplotlib", specifier = ">=3.10.1" },
+    { name = "npyplotter" },
     { name = "opencv-stubs", specifier = ">=0.0.11" },
     { name = "pyfzf", specifier = ">=0.3.1" },
     { name = "pyqt6", specifier = ">=6.8.1" },
@@ -755,8 +712,8 @@ wheels = [
 
 [[package]]
 name = "npyplotter"
-version = "0.1.1"
-source = { git = "https://github.com/joseph-pq/npy-plotter.git#035605827b9aa9041821a1cd697a2762e48b71fa" }
+version = "0.1.3"
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "bandit" },
     { name = "flake8" },
@@ -765,6 +722,10 @@ dependencies = [
     { name = "numpy" },
     { name = "pycodestyle" },
     { name = "pydocstyle" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/9e/52/89ce32ca74ce89cad4c4b61c92a367d58fd5e5de90396213d648370c4061/npyplotter-0.1.3.tar.gz", hash = "sha256:60ba4598e1527269ba23e373238898acce90689c73dd321d012a4510c7b4016b", size = 20209, upload-time = "2025-10-11T19:52:21.509Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/2b/09/fe06cb8d7a19e4ff2d27935ebca1076ee56014b90309c3a70f3af474fdcc/npyplotter-0.1.3-py3-none-any.whl", hash = "sha256:2b28b0a41acff280889b1554fe89551a38f2ac1f66e268f0d000c531116bf739", size = 4778, upload-time = "2025-10-11T19:52:19.571Z" },
 ]
 
 [[package]]

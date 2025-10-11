@@ -84,7 +84,6 @@ async def rotate_image(
     # order (width, height) compared to shape
     rotation_angle = float(rotation)
 
-    print(f"{rotation_angle=}")
     rot_mat = cv2.getRotationMatrix2D(
         image_center, rotation_angle, a
     )
@@ -134,7 +133,7 @@ async def apply_distortion_correction(
 
     distances_ = {
         # (int(key.split(",")[0]), int(key.split(",")[1])): value
-        f"{key.split(',')[0].strip()},{key.split(',')[1].strip()}": value
+        f"({key.split(',')[0].strip()},{key.split(',')[1].strip()})": value
         for key, value in json.loads(distances).items()
     }
     pixels = [(int(gcp[0]), int(gcp[1])) for gcp in json.loads(gcps)]

@@ -7,14 +7,14 @@ import { ImageControls } from "../../features/ImageControls/ImageControls";
 import { TabComponentProps } from "../../../types/tabs";
 
 export const RotationView: React.FC<TabComponentProps> = ({ handlePrev, handleNext: handleNextRoot }) => {
-  const [rotation, setRotation] = useState(0);
-  const [scale, setScale] = useState(1);
   const context = useContext(ImagesContext);
   const computeImageDimensionsCB = useCallback(computeImageDimensions, []);
   if (!context) {
     throw new Error("ImagesContext must be used within an ImagesProvider");
   }
   const { imagePreCropped, session, setSession, setImgSrcRotated} = context;
+  const [rotation, setRotation] = useState(session.rotation || 0);
+  const [scale, setScale] = useState(session.rotationScale || 1);
 
   const updateScale = (rot: number) => {
     setRotation(rot);
@@ -57,7 +57,7 @@ export const RotationView: React.FC<TabComponentProps> = ({ handlePrev, handleNe
       const img = new Image();
       img.onload = () => {
         const dims = computeImageDimensionsCB(img.width, img.height);
-        setSession({ ...session, rotationView: dims });
+        setSession({ ...session, rotationView: dims, rotation, rotationScale: scale });
         setImgSrcRotated(rotatedImageUrl);
         handleNextRoot();
       };

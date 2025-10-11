@@ -62,4 +62,6 @@ export interface Session {
   cropView: ImageView;
   preCrop: CropArea;
   crop: CropArea;
+  rotation: number;
+  rotationScale: number;
 }

@@ -46,20 +46,6 @@ export const CropView: React.FC<TabComponentProps> = ({
     const x2Natural = toOriginalWidth(cropArea.x2);
     const y2Natural = toOriginalHeight(cropArea.y2);
 
-    setSession({
-      ...session,
-      preCrop: {
-        x1: cropArea.x1,
-        y1: cropArea.y1,
-        x2: cropArea.x2,
-        y2: cropArea.y2,
-        x1Natural,
-        y1Natural,
-        x2Natural,
-        y2Natural,
-      },
-    });
-
     setLoading(true);
     try {
       const formData = new FormData();
@@ -88,7 +74,20 @@ export const CropView: React.FC<TabComponentProps> = ({
       const img = new Image();
       img.onload = () => {
         const dims = computeImageDimensionsCB(img.width, img.height);
-        setSession({...session, preCropView: dims });
+        setSession({
+					...session,
+					cropView: dims,
+					crop: {
+						x1: cropArea.x1,
+						y1: cropArea.y1,
+						x2: cropArea.x2,
+						y2: cropArea.y2,
+						x1Natural,
+						y1Natural,
+						x2Natural,
+						y2Natural,
+					},
+				});
         setImgSrcCropped(imageUrl);
         handleNextRoot();
       };

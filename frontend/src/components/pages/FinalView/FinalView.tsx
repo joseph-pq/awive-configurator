@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import { ImageControls } from "../../features/ImageControls/ImageControls";
 import { Button, Container, Typography, Paper, Box } from "@mui/material";
 import { ImagesContext } from "../../../contexts/images";
-import { ImageConfig } from "../../../types/image";
+import { Session } from "../../../types/image";
 import { TabComponentProps } from "@/types/tabs";
 
 export const FinalView: React.FC<TabComponentProps> = ({ handlePrev }) => {
@@ -10,9 +10,18 @@ export const FinalView: React.FC<TabComponentProps> = ({ handlePrev }) => {
   if (!context) {
     throw new Error("ImagesContext must be used within an ImagesProvider");
   }
-  const { imageConfig } = context;
+  const { session, gcpPoints, distances } = context;
 
-  const generateYamlContent = (config: ImageConfig | null): string => {
+  // given distances an array of Distance object which contains attributes
+  // points (number, number) and distance
+  // convert it to a dictionary where key is "i,j" and value is distance
+  // e.g. { "0,1": 32, "0,2": 45 }
+  const distanceDict: Record<string, number> = {};
+  distances.forEach((d) => {
+    distanceDict[`${d.points[0]},${d.points[1]}`] = d.distance;
+  });
+
+  const generateYamlContent = (config: Session | null): string => {
     if (!config) {
       return "No image configuration available.";
     }
@@ -21,38 +30,38 @@ export const FinalView: React.FC<TabComponentProps> = ({ handlePrev }) => {
 dataset:
   gcp:
     apply: true  # do not change
-    pixels:
-    - - 596
-      - 422
-    - - 916
-      - 234
-    - - 3380
-      - 1160
-    - - 2657
-      - 2077
     video_fp: /some/file/that/does/not/care.mp4  # do not change
+    pixels:
+    - - ${gcpPoints[0].x}
+      - ${gcpPoints[0].y}
+    - - ${gcpPoints[1].x}
+      - ${gcpPoints[1].y}
+    - - ${gcpPoints[2].x}
+      - ${gcpPoints[2].y}
+    - - ${gcpPoints[3].x}
+      - ${gcpPoints[3].y}
     distances:
-      "0,1": 32
-      "0,2": 32
-      "0,3": 32
-      "1,2": 32
-      "1,3": 32
-      "2,3": 32
+      "0,1": ${distanceDict["0,1"]}
+      "0,2": ${distanceDict["0,2"]}
+      "0,3": ${distanceDict["0,3"]}
+      "1,2": ${distanceDict["1,2"]}
+      "1,3": ${distanceDict["1,3"]}
+      "2,3": ${distanceDict["2,3"]}
 preprocessing:
   ppm: 262  # do not change
-  rotate_image: 250
+  rotate_image: ${config.rotation}
   pre_roi:
+  - - ${config.preCrop.x1}
+    - ${config.preCrop.y2}
+  - - ${config.preCrop.x2}
+    - ${config.preCrop.y2}
   roi:
+  - - ${config.crop.x1}
+    - ${config.crop.y1}
+  - - ${config.crop.x2}
+    - ${config.crop.y2}
 `;
-  // - - ${config.preCrop?.x || 0}
-  //   - ${config.preCrop?.y || 0}
-  // - - ${config.preCrop?.width || 0}
-  //   - ${config.preCrop?.height || 0}
   };
-  // - - ${config.cropArea?.x || 0}
-  //   - ${config.cropArea?.y || 0}
-  // - - ${config.cropArea?.width || 0}
-  //   - ${config.cropArea?.height || 0}
 
   const colorizeYaml = (yamlString: string): React.ReactNode => {
     // Split the YAML string into lines to process each line individually
@@ -133,7 +142,7 @@ preprocessing:
     return <span>{text}</span>;
   };
 
-  const yamlContent = generateYamlContent(imageConfig);
+  const yamlContent = generateYamlContent(session);
   const colorizedYaml = colorizeYaml(yamlContent);
 
   const downloadYaml = () => {

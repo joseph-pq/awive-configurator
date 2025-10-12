@@ -26,7 +26,7 @@ async def get_temp_dir() -> AsyncGenerator[str, None]:
         del tempdir
 
 
-@router.post("/crop")
+@router.post("/crop/")
 async def crop_image(
     file: UploadFile = File(...),
     x1: str = Form(...),
@@ -54,7 +54,7 @@ async def crop_image(
         filename="cropped_image.png",
     )
 
-@router.post("/rotate")
+@router.post("/rotate/")
 async def rotate_image(
     file: UploadFile = File(...),
     rotation: str = Form(...),
@@ -112,7 +112,7 @@ async def rotate_image(
     )
 
 
-@router.post("/orthorectification")
+@router.post("/orthorectification/")
 async def apply_distortion_correction(
     file: UploadFile = File(...),
     gcps: str = Form(...),

@@ -1,14 +1,10 @@
-version: "3.9"
-
 services:
   backend:
-    image: awive-configurator-backend
+    image: awive-configurator:${ENV:-dev}
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        REACT_APP_API_URL: ${REACT_APP_API_URL}
     ports:
       - "8000:8000"
-    volumes:
-      - ./config.json:/app/config.json:ro
-    environment:
-      - ENV=production

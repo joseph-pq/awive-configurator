@@ -1,12 +1,18 @@
+import os
+from pathlib import Path
+
 from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
 from fastapi.responses import FileResponse
 from fastapi.routing import APIRoute
-from fastapi.middleware.cors import CORSMiddleware
-from pathlib import Path
+from fastapi.staticfiles import StaticFiles
 
 from app.api.main import api_router
 
+ENV = os.getenv("ENV", "dev")  # "dev" or "prod"
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
+ENABLE_HTTPS_REDIRECT = os.getenv("ENABLE_HTTPS_REDIRECT", "0") == "1"
 
 def custom_generate_unique_id(route: APIRoute) -> str:
     tag = route.tags[0] if route.tags else "default"
@@ -19,21 +25,21 @@ app = FastAPI(
     generate_unique_id_function=custom_generate_unique_id,
 )
 
-app.include_router(api_router, prefix="/api/v1")
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=[FRONTEND_URL] if ENV == "production" else ["http://localhost:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+if ENV == "production" and ENABLE_HTTPS_REDIRECT:
+    app.add_middleware(HTTPSRedirectMiddleware)
 
-# Serve React build
+app.include_router(api_router, prefix="/api/v1")
+
 frontend_dir = Path(__file__).resolve().parents[2] / "frontend" / "build"
-
-app.mount("/static", StaticFiles(directory=frontend_dir / "static"), name="static")
-
+# app.mount("/static", StaticFiles(directory=frontend_dir / "static"), name="static")
+app.mount("/", StaticFiles(directory=frontend_dir, html=True), name="frontend")
 
 @app.get("/")
 def serve_root():
@@ -41,3 +47,11 @@ def serve_root():
     if index_file.exists():
         return FileResponse(index_file)
     return {"message": "Frontend not built or not found"}
+
+# Optional: fallback for React routing (SPA)
+@app.get("/{full_path:path}")
+def serve_spa(full_path: str):
+    index_file = frontend_dir / "index.html"
+    if index_file.exists():
+        return FileResponse(index_file)
+    return {"message": f"Frontend not built or not found for {full_path}"}

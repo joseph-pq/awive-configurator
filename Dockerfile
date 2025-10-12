@@ -3,6 +3,9 @@
 # =========================
 FROM node:22 AS frontend-builder
 
+ARG REACT_APP_API_URL
+ENV REACT_APP_API_URL=${REACT_APP_API_URL}
+
 WORKDIR /frontend
 
 # Copy only package files for caching

@@ -177,4 +177,8 @@ I had to use Geogebra to find out the coordinates in a cardinal plane. then
 I wrote those coordinates in the config.json and add offset to not use negative
 numbers but Actually I don't know if negative'll break the code or not.
 
-## Changelog
+# GUI
+
+```bash
+docker compose up -d --build
+```

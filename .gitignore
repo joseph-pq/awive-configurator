@@ -180,3 +180,5 @@ pyrightconfig.json
 *.mp4
 *.json
 .envrc
+out.png
+backend/*.png

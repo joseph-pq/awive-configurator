@@ -39,7 +39,7 @@ def run_otv(
 
     config = Config.from_fp(config_fp)
     loader: Loader = make_loader(config.dataset)
-    formatter = Formatter(config)
+    formatter = Formatter(config.dataset, config.preprocessing)
     image: NDArray | None = loader.read()
     if image is None:
         raise ValueError("No image found")

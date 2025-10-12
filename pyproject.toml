@@ -4,30 +4,32 @@ version = "0.1.0"
 description = ""
 authors = [{ name = "Joseph P.", email = "joseph.pena.q@gmail.com" }]
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.11.1"
 dependencies = [
-    "awive>=3.0.0,<4.0.0",
-    "npyplotter",
+    "awive>=3.2.2",
+    "python-multipart>=0.0.20",
     "scipy>=1.15.2",
     "typer>=0.15.2",
 ]
 
 [dependency-groups]
+backend = [
+    "fastapi[standard]>=0.115.12",
+]
 dev = [
+    "npyplotter",
     "debugpy>=1.8.5",
     "ipython>=9.0.2",
     "matplotlib>=3.10.1",
+    "opencv-stubs>=0.0.11",
     "pyfzf>=0.3.1",
     "pyqt6>=6.8.1",
     "tk>=0.1.0",
 ]
 
-[build-system]
-requires = ["pdm-backend"]
-build-backend = "pdm.backend"
-
-[tool.uv.sources]
-npyplotter = { git = "https://github.com/joseph-pq/npy-plotter.git" }
+# [build-system]
+# requires = ["pdm-backend"]
+# build-backend = "pdm.backend"
 
 [tool.mypy]
 exclude = ".venv/"

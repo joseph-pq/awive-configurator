@@ -53,6 +53,15 @@ export interface ImageView {
   originalHeight: number;
 }
 
+export interface Point {
+  x: number;
+  y: number;
+}
+
+export interface ProfilePoint extends Point {
+  depth: number;
+}
+
 export interface Session {
   file: string | File | null;
   homeView: ImageView;
@@ -64,4 +73,5 @@ export interface Session {
   crop: CropArea;
   rotation: number;
   rotationScale: number;
+  depths: ProfilePoint[];
 }

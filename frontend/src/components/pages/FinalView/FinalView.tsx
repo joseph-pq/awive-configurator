@@ -60,6 +60,15 @@ preprocessing:
     - ${config.crop.y1}
   - - ${config.crop.x2}
     - ${config.crop.y2}
+water_flow:
+  profile:
+${session.depths.map(
+    ({ x, y, depth }) =>
+      `    - x: ${Math.round(x)}\n      y: ${Math.round(y)}\n      z: ${depth}`
+  )
+      .join("\n")
+    }
+
 `;
   };
 

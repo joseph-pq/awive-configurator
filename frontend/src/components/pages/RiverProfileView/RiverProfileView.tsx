@@ -21,12 +21,39 @@ export const RiverProfileView: React.FC<TabComponentProps> = ({
   const { imageCropped, session, setSession } = context;
 
   // State for line drawing: endpoints of the profile line
-  const [endpoints, setEndpoints] = useState<Point[]>([]);
+  const [endpoints, setEndpoints] = useState<Point[]>(
+    session.depths.reduce((acc: Point[], curr, index, array) => {
+      if (array.length >= 2) {
+        if (index === 0) acc.push({ x: curr.x / session.cropView.originalWidth * session.cropView.scaledWidth, y: curr.y / session.cropView.originalHeight * session.cropView.scaledHeight });                // first element
+        if (index === array.length - 1) acc.push({ x: curr.x / session.cropView.originalWidth * session.cropView.scaledWidth, y: curr.y / session.cropView.originalHeight * session.cropView.scaledHeight }); // last element
+      } else {
+        acc.push({ x: curr.x, y: curr.y }); // handle single-element case
+      }
+      return acc;
+    }, [] as Point[]) // 👈 explicitly tell TS this is a Point[]
+  );
 
   // State for equidistant points
-  const [numPoints, setNumPoints] = useState<number>(3);
-  const [profilePoints, setProfilePoints] = useState<Record<number, ProfilePoint>>({});
-  const [validPoints, setValidPoints] = useState<Record<number, boolean>>({});
+  const [numPoints, setNumPoints] = useState<number>(
+    session.depths.length >= 2 ? session.depths.length : 4
+  );
+  const [profilePoints, setProfilePoints] = useState<Record<number, ProfilePoint>>(
+    Object.fromEntries(
+      session.depths.map(
+        (point, index) => [
+          index,
+          {
+            x: point.x / session.cropView.originalWidth * session.cropView.scaledWidth,
+            y: point.y / session.cropView.originalHeight * session.cropView.scaledHeight,
+            depth: point.depth,
+          }
+        ]
+      )
+    )
+  );
+  const [validPoints, setValidPoints] = useState<Record<number, boolean>>(
+    Object.fromEntries(session.depths.map((point, index) => [index, true]))
+  );
 
   // Handle clicking to place line points
   const handleMouseDown = (e: KonvaEventObject<MouseEvent>) => {
@@ -50,7 +77,7 @@ export const RiverProfileView: React.FC<TabComponentProps> = ({
   useEffect(() => {
     if (endpoints.length !== 2) return;
     const [start, end] = endpoints;
-    const newProfilePoints: ProfilePoint[] = [];
+    const newProfilePoints: Record<number, ProfilePoint> = {};
     // Calculate the total length of the line
     const dx = end.x - start.x;
     const dy = end.y - start.y;
@@ -59,11 +86,11 @@ export const RiverProfileView: React.FC<TabComponentProps> = ({
       const ratio = i / (numPoints - 1);
       const x = start.x + dx * ratio;
       const y = start.y + dy * ratio;
-      newProfilePoints.push({
+      newProfilePoints[i] = {
         x,
         y,
-        depth: 0, // Default distance
-      });
+        depth: session.depths[i] ? session.depths[i].depth : 0, // Preserve existing depth if available
+      };
     }
     setProfilePoints(newProfilePoints);
   }, [endpoints, numPoints]);
@@ -87,11 +114,14 @@ export const RiverProfileView: React.FC<TabComponentProps> = ({
   const handleNext = () => {
     // Validate that all distances are filled
     const allValidPoints = Object.values(validPoints).every((valid, idx) => valid);
+    if (!allValidPoints || Object.keys(validPoints).length === 0) {
+      alert("Please fill in all distances between points");
+      return;
+    }
     if (
-      !allValidPoints ||
       Object.keys(validPoints).length !== Object.keys(profilePoints).length
     ) {
-      alert("Please fill in all distances between points");
+      alert("Missmatch in number of profile points and valid points");
       return;
     }
 

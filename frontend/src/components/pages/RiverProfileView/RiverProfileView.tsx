@@ -1,6 +1,6 @@
-import React, { useState, useContext, useRef, useEffect } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { Box, Typography, Slider, TextField, Button } from "@mui/material";
-import { Stage, Layer, Line, Circle } from "react-konva";
+import { Line, Circle } from "react-konva";
 import { ImagesContext } from "../../../contexts/images";
 import { ImageViewer } from "../../shared/ImageViewer/ImageViewer";
 import { ImageControls } from "../../features/ImageControls/ImageControls";
@@ -13,7 +13,7 @@ interface Point {
 }
 
 interface ProfilePoint extends Point {
-  distance: number;
+  depth: number;
 }
 
 export const RiverProfileView: React.FC<TabComponentProps> = ({
@@ -25,151 +25,90 @@ export const RiverProfileView: React.FC<TabComponentProps> = ({
   if (!context) {
     throw new Error("ImagesContext must be used within an ImagesProvider");
   }
-  const { imageOrthorectified: image1, imageConfig, distances: contextDistances, setDistances: setContextDistances } = context;
+  const { imageCropped, session } = context;
 
-  // State for line drawing
-  const [linePoints, setLinePoints] = useState<Point[]>([]);
+  // State for line drawing: endpoints of the profile line
+  const [endpoints, setEndpoints] = useState<Point[]>([]);
 
   // State for equidistant points
   const [numPoints, setNumPoints] = useState<number>(3);
   const [profilePoints, setProfilePoints] = useState<ProfilePoint[]>([]);
-  const [distances, setDistances] = useState<Record<number, string>>({});
+  const [depths, setDepths] = useState<Record<number, string>>({});
 
   // Handle clicking to place line points
   const handleMouseDown = (e: KonvaEventObject<MouseEvent>) => {
     const stage = e.target.getStage();
     if (!stage) return;
-
     const pos = stage.getPointerPosition();
     if (!pos) return;
 
-    // If we already have a complete line (2 points), clear it
-    if (linePoints.length === 2) {
-      setLinePoints([]);
+    if (endpoints.length === 2) { // Reset for new line
       setProfilePoints([]);
-      setDistances({});
-
-      // Add the first point of the new line
-      setLinePoints([{ x: pos.x, y: pos.y }]);
-      return;
-    }
-
-    // If we're starting a new line
-    if (linePoints.length === 0) {
-      setLinePoints([{ x: pos.x, y: pos.y }]);
-      return;
-    }
-
-    // If we already have the first point, add the second point to complete the line
-    if (linePoints.length === 1) {
-      setLinePoints([linePoints[0], { x: pos.x, y: pos.y }]);
+      setDepths({});
+      setEndpoints([{ x: pos.x, y: pos.y }]);
+    } else if (endpoints.length === 0) { // Starting a new line
+      setEndpoints([{ x: pos.x, y: pos.y }]);
+    } else if (endpoints.length === 1) { // Completing the line
+      setEndpoints([endpoints[0], { x: pos.x, y: pos.y }]);
     }
   };
 
-  // These are not needed for two-click approach, but keeping them as empty functions
-  // to avoid changing the component interface
-  const handleMouseMove = () => {};
-  const handleMouseUp = () => {};
-
-  // Load saved configuration on mount
-  useEffect(() => {
-    if (contextDistances && contextDistances.length > 0) {
-      // Calculate how many points we have (number of distances + 1)
-      const pointCount = contextDistances.length + 1;
-      setNumPoints(pointCount);
-
-      // We need to wait for the image to load before we can calculate positions
-      if (!image1) return;
-
-      // Since we don't store the actual line points, we'll create a default line
-      // across the middle of the image for visualization purposes
-      const imageWidth = imageConfig.width1;
-      const imageHeight = imageConfig.height1;
-      const start = { x: imageWidth * 0.25, y: imageHeight * 0.5 };
-      const end = { x: imageWidth * 0.75, y: imageHeight * 0.5 };
-
-      setLinePoints([start, end]);
-    }
-  }, [contextDistances, image1]);
-
   // Calculate equidistant points along the line
   useEffect(() => {
-    if (linePoints.length !== 2) return;
-
-    const [start, end] = linePoints;
+    if (endpoints.length !== 2) return;
+    const [start, end] = endpoints;
     const newProfilePoints: ProfilePoint[] = [];
-
     // Calculate the total length of the line
     const dx = end.x - start.x;
     const dy = end.y - start.y;
-    const lineLength = Math.sqrt(dx * dx + dy * dy);
-
     // Create equidistant points
     for (let i = 0; i < numPoints; i++) {
       const ratio = i / (numPoints - 1);
       const x = start.x + dx * ratio;
       const y = start.y + dy * ratio;
-
       newProfilePoints.push({
         x,
         y,
-        distance: 0, // Default distance
+        depth: 0, // Default distance
       });
     }
-
     setProfilePoints(newProfilePoints);
-
-    // Only reset distances if we don't have saved data
-    if (contextDistances && contextDistances.length > 0) {
-      // Restore saved distances
-      const newDistances: Record<number, string> = {};
-      contextDistances.forEach((dist, idx) => {
-        newDistances[idx + 1] = dist.distance.toString();
-      });
-      setDistances(newDistances);
-    } else {
-      // Reset distances when line changes
-      setDistances({});
-    }
-  }, [linePoints, numPoints, contextDistances]);
+  }, [endpoints, numPoints]);
 
   // Handle distance input changes
   const handleDistanceChange = (index: number, value: string) => {
-    setDistances({
-      ...distances,
+    setDepths({
+      ...depths,
       [index]: value,
     });
   };
 
   const handleNext = () => {
-    // Validate that all distances are filled
-    const allDistancesFilled = profilePoints.every((_, index) =>
-      index === 0 || distances[index] !== undefined
-    );
+    // // Validate that all distances are filled
+    // const allDistancesFilled = profilePoints.every((_, index) =>
+    //   index === 0 || depths[index] !== undefined
+    // );
 
-    if (!allDistancesFilled) {
-      alert("Please fill in all distances between points");
-      return;
-    }
+    // if (!allDistancesFilled) {
+    //   alert("Please fill in all distances between points");
+    //   return;
+    // }
 
-    // Convert our profile points and distances to the format expected by context
-    const distanceData = profilePoints.slice(1).map((point, idx) => {
-      const prevIdx = idx;
-      const currIdx = idx + 1;
-      return {
-        points: [prevIdx, currIdx],
-        distance: parseFloat(distances[currIdx] || "0")
-      };
-    });
-
-    // Save to context
-    // setContextDistances(distanceData);
+    // // Convert our profile points and distances to the format expected by context
+    // const distanceData = profilePoints.slice(1).map((point, idx) => {
+    //   const prevIdx = idx;
+    //   const currIdx = idx + 1;
+    //   return {
+    //     points: [prevIdx, currIdx],
+    //     distance: parseFloat(depths[currIdx] || "0")
+    //   };
+    // });
 
     // Process data and move to next step
     handleNextRoot();
   };
 
-  if (!image1) {
+  if (!imageCropped) {
     return null;
   }
 
@@ -184,20 +123,14 @@ export const RiverProfileView: React.FC<TabComponentProps> = ({
           onNext={handleNext}
         />
         <ImageViewer
-          image={image1}
-          imageConfig={{
-            ...imageConfig,
-            scaledWidth: imageConfig.width1,
-            scaledHeight: imageConfig.height1,
-          }}
+          image={imageCropped}
+          imageConfig={session.cropView}
           onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
         >
-          {/* Line between the two points */}
-          {linePoints.length === 2 && (
+          {/* Line between the endpoints */}
+          {endpoints.length === 2 && (
             <Line
-              points={[linePoints[0].x, linePoints[0].y, linePoints[1].x, linePoints[1].y]}
+              points={[endpoints[0].x, endpoints[0].y, endpoints[1].x, endpoints[1].y]}
               stroke="white"
               strokeWidth={2}
               lineCap="round"
@@ -206,13 +139,13 @@ export const RiverProfileView: React.FC<TabComponentProps> = ({
           )}
 
           {/* Equidistant points along the line - only shown when line drawing is complete */}
-          {linePoints.length === 2 && profilePoints.map((point, index) => (
+          {endpoints.length === 2 && profilePoints.map((point, index) => (
             <Circle
               key={index}
               x={point.x}
               y={point.y}
               radius={6}
-              fill={distances[index] ? "green" : "red"}
+              fill={depths[index] ? "green" : "red"}
               stroke="white"
               strokeWidth={1}
             />
@@ -224,16 +157,16 @@ export const RiverProfileView: React.FC<TabComponentProps> = ({
           River Profile Settings
         </Typography>
 
-        {linePoints.length === 2 && (
+        {endpoints.length === 2 && (
           <Box sx={{ mb: 2 }}>
             <Button
               variant="outlined"
               color="error"
               fullWidth
               onClick={() => {
-                setLinePoints([]);
+                setEndpoints([]);
                 setProfilePoints([]);
-                setDistances({});
+                setDepths({});
               }}
             >
               Reset Line
@@ -249,11 +182,11 @@ export const RiverProfileView: React.FC<TabComponentProps> = ({
             value={numPoints}
             onChange={(_, value) => setNumPoints(value as number)}
             min={2}
-            max={10}
+            max={15}
             step={1}
             marks
             valueLabelDisplay="auto"
-            disabled={linePoints.length !== 2}
+            disabled={endpoints.length !== 2}
           />
         </Box>
 
@@ -264,22 +197,20 @@ export const RiverProfileView: React.FC<TabComponentProps> = ({
             </Typography>
 
             {profilePoints.map((_, index) => {
-              if (index === 0) return null; // Skip first point, no distance to previous
-
               return (
                 <Box key={index} sx={{ mb: 2 }}>
                   <Typography variant="body2">
-                    Point {index} distance from Point {index - 1}:
+                    Depth of point {index}:
                   </Typography>
                   <TextField
                     fullWidth
                     size="small"
                     type="number"
-                    value={distances[index] || ""}
+                    value={depths[index] || ""}
                     onChange={(e) => handleDistanceChange(index, e.target.value)}
                     placeholder="Enter distance"
-                    InputProps={{
-                      endAdornment: <Typography variant="body2">m</Typography>,
+                    slotProps={{
+                      htmlInput: <Typography variant="body2">m</Typography>,
                     }}
                   />
                 </Box>

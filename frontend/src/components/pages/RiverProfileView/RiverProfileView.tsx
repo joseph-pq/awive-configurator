@@ -86,26 +86,29 @@ export const RiverProfileView: React.FC<TabComponentProps> = ({
 
   const handleNext = () => {
     // Validate that all distances are filled
-    // const allDepthsFilled = profilePoints.every((_, index) =>
-    //   index === 0 || depths[index] !== undefined
-    // );
+    const allValidPoints = Object.values(validPoints).every((valid, idx) => valid);
+    if (
+      !allValidPoints ||
+      Object.keys(validPoints).length !== Object.keys(profilePoints).length
+    ) {
+      alert("Please fill in all distances between points");
+      return;
+    }
 
-    // if (!allDepthsFilled) {
-    //   alert("Please fill in all distances between points");
-    //   return;
-    // }
-
-    // // Convert our profile points and distances to the format expected by context
-    // const naturalDepths: ProfilePoint[] = profilePoints.map((profilePoint: ProfilePoint, idx: number) => {
-    //   // TODO: convert x, y from scaled to natural image coordinates if needed
-    //   return {
-    //     depth: profilePoint.depth
-    //   };
-    // });
-    // setSession({
-    //   ...session,
-    //   depths: naturalDepths,
-    // });
+    // Convert our profile points and distances to the format expected by context
+    const naturalDepths: ProfilePoint[] = Object.values(profilePoints).map((profilePoint: ProfilePoint, idx: number) => {
+      const x = profilePoint.x / session.cropView.scaledWidth * session.cropView.originalWidth;
+      const y = profilePoint.y / session.cropView.scaledHeight * session.cropView.originalHeight;
+      return {
+        x,
+        y,
+        depth: profilePoint.depth
+      };
+    });
+    setSession({
+      ...session,
+      depths: naturalDepths,
+    });
 
     // Process data and move to next step
     handleNextRoot();

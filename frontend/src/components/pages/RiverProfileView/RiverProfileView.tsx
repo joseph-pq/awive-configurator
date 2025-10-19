@@ -6,15 +6,8 @@ import { ImageViewer } from "../../shared/ImageViewer/ImageViewer";
 import { ImageControls } from "../../features/ImageControls/ImageControls";
 import { TabComponentProps } from "@/types/tabs";
 import { KonvaEventObject } from "konva/lib/Node";
+import { Point, ProfilePoint } from '../../../types/image';
 
-interface Point {
-  x: number;
-  y: number;
-}
-
-interface ProfilePoint extends Point {
-  depth: number;
-}
 
 export const RiverProfileView: React.FC<TabComponentProps> = ({
   handlePrev,
@@ -25,15 +18,15 @@ export const RiverProfileView: React.FC<TabComponentProps> = ({
   if (!context) {
     throw new Error("ImagesContext must be used within an ImagesProvider");
   }
-  const { imageCropped, session } = context;
+  const { imageCropped, session, setSession } = context;
 
   // State for line drawing: endpoints of the profile line
   const [endpoints, setEndpoints] = useState<Point[]>([]);
 
   // State for equidistant points
   const [numPoints, setNumPoints] = useState<number>(3);
-  const [profilePoints, setProfilePoints] = useState<ProfilePoint[]>([]);
-  const [depths, setDepths] = useState<Record<number, string>>({});
+  const [profilePoints, setProfilePoints] = useState<Record<number, ProfilePoint>>({});
+  const [validPoints, setValidPoints] = useState<Record<number, boolean>>({});
 
   // Handle clicking to place line points
   const handleMouseDown = (e: KonvaEventObject<MouseEvent>) => {
@@ -43,8 +36,8 @@ export const RiverProfileView: React.FC<TabComponentProps> = ({
     if (!pos) return;
 
     if (endpoints.length === 2) { // Reset for new line
-      setProfilePoints([]);
-      setDepths({});
+      setProfilePoints({});
+      setValidPoints({});
       setEndpoints([{ x: pos.x, y: pos.y }]);
     } else if (endpoints.length === 0) { // Starting a new line
       setEndpoints([{ x: pos.x, y: pos.y }]);
@@ -75,33 +68,43 @@ export const RiverProfileView: React.FC<TabComponentProps> = ({
     setProfilePoints(newProfilePoints);
   }, [endpoints, numPoints]);
 
-  // Handle distance input changes
-  const handleDistanceChange = (index: number, value: string) => {
-    setDepths({
-      ...depths,
-      [index]: value,
+  // Handle depth input changes
+  const handleDepthWrite = (index: number, value: string) => {
+    const valid = value == "" ? false : !isNaN(Number(value))
+    setValidPoints({
+      ...validPoints,
+      [index]: valid
+    });
+    setProfilePoints({
+      ...profilePoints,
+      [index]: {
+        ...profilePoints[index],
+        depth: Number(value)
+      }
     });
   };
 
   const handleNext = () => {
-    // // Validate that all distances are filled
-    // const allDistancesFilled = profilePoints.every((_, index) =>
+    // Validate that all distances are filled
+    // const allDepthsFilled = profilePoints.every((_, index) =>
     //   index === 0 || depths[index] !== undefined
     // );
 
-    // if (!allDistancesFilled) {
+    // if (!allDepthsFilled) {
     //   alert("Please fill in all distances between points");
     //   return;
     // }
 
     // // Convert our profile points and distances to the format expected by context
-    // const distanceData = profilePoints.slice(1).map((point, idx) => {
-    //   const prevIdx = idx;
-    //   const currIdx = idx + 1;
+    // const naturalDepths: ProfilePoint[] = profilePoints.map((profilePoint: ProfilePoint, idx: number) => {
+    //   // TODO: convert x, y from scaled to natural image coordinates if needed
     //   return {
-    //     points: [prevIdx, currIdx],
-    //     distance: parseFloat(depths[currIdx] || "0")
+    //     depth: profilePoint.depth
     //   };
+    // });
+    // setSession({
+    //   ...session,
+    //   depths: naturalDepths,
     // });
 
     // Process data and move to next step
@@ -139,17 +142,18 @@ export const RiverProfileView: React.FC<TabComponentProps> = ({
           )}
 
           {/* Equidistant points along the line - only shown when line drawing is complete */}
-          {endpoints.length === 2 && profilePoints.map((point, index) => (
-            <Circle
-              key={index}
-              x={point.x}
-              y={point.y}
-              radius={6}
-              fill={depths[index] ? "green" : "red"}
-              stroke="white"
-              strokeWidth={1}
-            />
-          ))}
+          {endpoints.length === 2 &&
+            Object.entries(profilePoints).map(([key, point], index) => (
+              <Circle
+                key={key}
+                x={point.x}
+                y={point.y}
+                radius={6}
+                fill={validPoints[index] ? "green" : "red"}
+                stroke="white"
+                strokeWidth={1}
+              />
+            ))}
         </ImageViewer>
       </Box>
       <Box sx={{ width: 300, p: 2, borderLeft: '1px solid #ddd' }}>
@@ -165,8 +169,8 @@ export const RiverProfileView: React.FC<TabComponentProps> = ({
               fullWidth
               onClick={() => {
                 setEndpoints([]);
-                setProfilePoints([]);
-                setDepths({});
+                setProfilePoints({});
+                setValidPoints({});
               }}
             >
               Reset Line
@@ -189,14 +193,14 @@ export const RiverProfileView: React.FC<TabComponentProps> = ({
             disabled={endpoints.length !== 2}
           />
         </Box>
-
-        {profilePoints.length > 0 && (
+        {Object.keys(profilePoints).length > 0 && (
           <Box>
             <Typography variant="subtitle1" gutterBottom>
               Enter distances between points:
             </Typography>
 
-            {profilePoints.map((_, index) => {
+            {Object.entries(profilePoints).map(([key, point]) => {
+              const index = Number(key);
               return (
                 <Box key={index} sx={{ mb: 2 }}>
                   <Typography variant="body2">
@@ -206,11 +210,11 @@ export const RiverProfileView: React.FC<TabComponentProps> = ({
                     fullWidth
                     size="small"
                     type="number"
-                    value={depths[index] || ""}
-                    onChange={(e) => handleDistanceChange(index, e.target.value)}
+                    value={validPoints[index] ? profilePoints[index].depth : ""}
+                    onChange={(e) => handleDepthWrite(index, e.target.value)}
                     placeholder="Enter distance"
-                    slotProps={{
-                      htmlInput: <Typography variant="body2">m</Typography>,
+                    InputProps={{
+                      endAdornment: <Typography variant="body2">m</Typography>,
                     }}
                   />
                 </Box>

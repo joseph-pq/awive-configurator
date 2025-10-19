@@ -124,6 +124,7 @@ function ImagesProvider({ children }: { children: React.ReactNode }) {
     preCrop: { x1: 0, y1: 0, x2: 0, y2: 0, x1Natural: 0, y1Natural: 0, x2Natural: 0, y2Natural: 0 },
     rotation: 0,
     rotationScale: 1,
+    depths: [],
   });
 
   return (

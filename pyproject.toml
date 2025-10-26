@@ -1,6 +1,6 @@
 [project]
 name = "awive-configurator"
-version = "0.1.0"
+version = "0.3.0"
 description = ""
 authors = [{ name = "Joseph P.", email = "joseph.pena.q@gmail.com" }]
 readme = "README.md"

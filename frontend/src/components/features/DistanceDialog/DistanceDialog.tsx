@@ -28,7 +28,7 @@ export const DistanceDialog: React.FC<DistanceDialogProps> = ({
       <DialogTitle>Enter Distance between GCPs</DialogTitle>
       <DialogContent>
         <TextField
-          label="Distance (in pixels)"
+          label="Distance (in meters)"
           value={distanceValue}
           onChange={(e) => onDistanceChange(e.target.value)}
           fullWidth
@@ -45,4 +45,4 @@ export const DistanceDialog: React.FC<DistanceDialogProps> = ({
       </DialogActions>
     </Dialog>
   );
-}; 
+};

@@ -125,6 +125,7 @@ function ImagesProvider({ children }: { children: React.ReactNode }) {
     rotation: 0,
     rotationScale: 1,
     depths: [],
+    cameraModel: "",
   });
 
   return (

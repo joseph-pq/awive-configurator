@@ -32,7 +32,7 @@ export const OrthorectificationView: React.FC<TabComponentProps> = ({
     throw new Error("ImagesContext must be used within an ImagesProvider");
   }
   const {
-    imageOriginal,
+    imageUndistorted,
     session,
     setSession,
     gcpPoints: sessionGcpPoints,
@@ -241,7 +241,7 @@ export const OrthorectificationView: React.FC<TabComponentProps> = ({
     }
   };
 
-  if (!imageOriginal) {
+  if (!imageUndistorted) {
     return null;
   }
 
@@ -255,7 +255,7 @@ export const OrthorectificationView: React.FC<TabComponentProps> = ({
         onNext={handleNext}
       />
       <ImageViewer
-        image={imageOriginal}
+        image={imageUndistorted}
         imageConfig={session.homeView}
         onClick={handleCanvasClick}
       >
@@ -301,7 +301,7 @@ export const OrthorectificationView: React.FC<TabComponentProps> = ({
           >
             <Layer>
               <KonvaImage
-                image={imageOriginal}
+                image={imageUndistorted}
                 x={cursorPos.x}
                 y={cursorPos.y}
                 width={session.homeView.scaledWidth}

@@ -10,16 +10,19 @@ interface ImagesContextProps {
   gcpPoints: Record<string, GcpPoint>;
   setGcpPoints: React.Dispatch<React.SetStateAction<Record<string, GcpPoint>>>;
   imageOriginal: HTMLImageElement | null;
+  imageUndistorted: HTMLImageElement | null;
   imageOrthorectified: HTMLImageElement | null;
   imagePreCropped: HTMLImageElement | null;
   imageRotated: HTMLImageElement | null;
   imageCropped: HTMLImageElement | null;
   setImgSrcPreCropped: React.Dispatch<React.SetStateAction<string | null>>;
+  setImgSrcUndistorted: React.Dispatch<React.SetStateAction<string | null>>;
   setImgSrcRotated: React.Dispatch<React.SetStateAction<string | null>>;
   setImgSrcCropped: React.Dispatch<React.SetStateAction<string | null>>;
   imageConfig: ImageConfig;
   setImageConfig: React.Dispatch<React.SetStateAction<ImageConfig>>;
   imageSrcOriginal: string | null;
+  imageSrcUndistorted: string | null;
   setImgSrcOriginal: React.Dispatch<React.SetStateAction<string | null>>;
   imageSrcOrthorectified: string | null;
   setImgSrcOrthorectified: React.Dispatch<React.SetStateAction<string | null>>;
@@ -36,15 +39,18 @@ function ImagesProvider({ children }: { children: React.ReactNode }) {
   const [imageSrcOriginal, setImgSrcOriginal] = React.useState<string | null>(null);
   const [imageOriginal] = useImage(imageSrcOriginal || "");
   // step 1: after orthorectification
+  const [imageSrcUndistorted, setImgSrcUndistorted] = React.useState<string | null>(null);
+  const [imageUndistorted] = useImage(imageSrcUndistorted || "");
+  // step 2: after orthorectification
   const [imageSrcOrthorectified, setImgSrcOrthorectified] = React.useState<string | null>(null);
   const [imageOrthorectified] = useImage(imageSrcOrthorectified || "");
-  // step 2: after pre-cropping
+  // step 3: after pre-cropping
   const [imageSrcPreCropped, setImgSrcPreCropped] = React.useState<string | null>(null);
   const [imagePreCropped] = useImage(imageSrcPreCropped || "");
-  // step 3: after rotate
+  // step 4: after rotate
   const [imageSrcRotated, setImgSrcRotated] = React.useState<string | null>(null);
   const [imageRotated] = useImage(imageSrcRotated || "");
-  // step 4: after crop
+  // step 5: after crop
   const [imageSrcCropped, setImgSrcCropped] = React.useState<string | null>(null);
   const [imageCropped] = useImage(imageSrcCropped || "");
 
@@ -96,6 +102,12 @@ function ImagesProvider({ children }: { children: React.ReactNode }) {
       originalWidth: 0,
       originalHeight: 0,
     },
+    undistortView: {
+      scaledWidth: 0,
+      scaledHeight: 0,
+      originalWidth: 0,
+      originalHeight: 0,
+    },
     orthoView: {
       scaledWidth: 0,
       scaledHeight: 0,
@@ -136,6 +148,7 @@ function ImagesProvider({ children }: { children: React.ReactNode }) {
         gcpPoints,
         setGcpPoints,
         imageOriginal: imageOriginal ?? null,
+        imageUndistorted: imageUndistorted ?? null,
         imageOrthorectified: imageOrthorectified ?? null,
         imagePreCropped: imagePreCropped ?? null,
         imageRotated: imageRotated ?? null,
@@ -143,8 +156,10 @@ function ImagesProvider({ children }: { children: React.ReactNode }) {
         imageConfig,
         setImageConfig,
         imageSrcOriginal,
+        imageSrcUndistorted,
         imageSrcOrthorectified,
         setImgSrcOriginal,
+        setImgSrcUndistorted,
         setImgSrcOrthorectified,
         setImgSrcPreCropped,
         setImgSrcRotated,

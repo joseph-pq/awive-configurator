@@ -65,6 +65,7 @@ export interface ProfilePoint extends Point {
 export interface Session {
   file: string | File | null;
   homeView: ImageView;
+  undistortView: ImageView
   orthoView: ImageView;
   preCropView: ImageView;
   rotationView: ImageView;

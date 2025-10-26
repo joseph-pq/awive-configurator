@@ -6,6 +6,7 @@ import { HomeView } from "./components/pages/HomeView/HomeView";
 import { OrthorectificationView } from "./components/pages/OrthorectificationView/OrthorectificationView";
 import { PreCropView } from "./components/pages/PreCropView/PreCropView";
 import { CropView } from "./components/pages/CropView/CropView";
+import { ImageCorrectionView } from "./components/pages/ImageCorrectionView/ImageCorrectionView";
 import { RotationView } from "./components/pages/RotationView/RotationView";
 import { FinalView } from "./components/pages/FinalView/FinalView";
 import { RiverProfileView } from "./components/pages/RiverProfileView/RiverProfileView";
@@ -13,7 +14,7 @@ import { useTabNavigation } from "./hooks/useTabNavigation";
 
 const TABS = [
   { label: "Home", value: "1", component: HomeView },
-  // { label: 'Image Correction', value: '2', component: <ImageCorrectionView /> },
+  { label: 'Image Correction', value: '2', component: ImageCorrectionView },
   {
     label: "Orthorectification",
     value: "3",

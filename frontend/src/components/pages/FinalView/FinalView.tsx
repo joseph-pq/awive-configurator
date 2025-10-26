@@ -5,6 +5,34 @@ import { ImagesContext } from "../../../contexts/images";
 import { Session } from "../../../types/image";
 import { TabComponentProps } from "@/types/tabs";
 
+
+const getImageCorrection = (cameraModel: string) => {
+  if (cameraModel === "cameraA") {
+    return `apply: true
+    c: 2
+    f: 8.0
+    k1: -9.999999747378752e-06
+    camera_matrix:
+      - - 2343.874030606418
+        - 0
+        - 1750.257150554386
+      - - 0
+        - 2337.355572222067
+        - 987.3723075141146
+      - - 0
+        - 0
+        - 1
+    dist_coeffs:
+      - - -0.45835142200388956
+        - 0.45271600570178333
+        - 0.0023286643488378066
+        - -0.0018160985370820142
+        - -0.2349399150200533`;
+  }
+  // Default or unknown camera model
+  return `apply: false`;
+}
+
 export const FinalView: React.FC<TabComponentProps> = ({ handlePrev }) => {
   const context = useContext(ImagesContext);
   if (!context) {
@@ -17,6 +45,7 @@ export const FinalView: React.FC<TabComponentProps> = ({ handlePrev }) => {
   distances.forEach((d) => {
     distanceDict[`${d.points[0]},${d.points[1]}`] = d.distance;
   });
+  const imageCorrection = getImageCorrection(session.cameraModel);
 
   const generateYamlContent = (config: Session | null): string => {
     if (!config) {
@@ -28,6 +57,8 @@ export const FinalView: React.FC<TabComponentProps> = ({ handlePrev }) => {
 
     return `
 dataset:
+  image_correction:
+${imageCorrection}
   gcp:
     apply: true  # do not change
     video_fp: /some/file/that/does/not/care.mp4  # do not change
@@ -63,11 +94,11 @@ preprocessing:
 water_flow:
   profile:
 ${session.depths
-  .map(
-    ({ x, y, depth }) =>
-      `    - x: ${r(x)}\n      y: ${r(y)}\n      z: ${depth}`
-  )
-  .join("\n")}
+        .map(
+          ({ x, y, depth }) =>
+            `    - x: ${r(x)}\n      y: ${r(y)}\n      z: ${depth}`
+        )
+        .join("\n")}
 `;
   };
 

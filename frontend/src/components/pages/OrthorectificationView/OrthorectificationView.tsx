@@ -27,14 +27,6 @@ export const OrthorectificationView: React.FC<TabComponentProps> = ({
   handlePrev,
   handleNext: handleNextRoot,
 }) => {
-  const [cursorPos, setCursorPos] = useState<CursorPosition>({ x: 0, y: 0 });
-  const [isDragging, setIsDragging] = useState<boolean>(false);
-  const [openDistanceDialog, setOpenDistanceDialog] = useState<boolean>(false);
-  const [selectedGcpPair, setSelectedGcpPair] = useState<[number, number] | null>(null);
-  const computeImageDimensionsCB = useCallback(computeImageDimensions, []);
-  const [distanceValue, setDistanceValue] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(false);
-
   const context = useContext(ImagesContext);
   if (!context) {
     throw new Error("ImagesContext must be used within an ImagesProvider");
@@ -43,12 +35,21 @@ export const OrthorectificationView: React.FC<TabComponentProps> = ({
     imageOriginal,
     session,
     setSession,
-    gcpPoints,
-    setGcpPoints,
+    gcpPoints: sessionGcpPoints,
+    setGcpPoints: setSessionGcpPoints,
     distances,
     setDistances,
     setImgSrcOrthorectified,
   } = context;
+
+  const [cursorPos, setCursorPos] = useState<CursorPosition>({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState<boolean>(false);
+  const [openDistanceDialog, setOpenDistanceDialog] = useState<boolean>(false);
+  const [selectedGcpPair, setSelectedGcpPair] = useState<[number, number] | null>(null);
+  const computeImageDimensionsCB = useCallback(computeImageDimensions, []);
+  const [distanceValue, setDistanceValue] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
+  const [gcpPoints, setGcpPoints] = useState<Record<string, GcpPoint>>(sessionGcpPoints || {});
 
   const handleNext = async () => {
     if (Object.keys(gcpPoints).length !== 4) {
@@ -62,6 +63,13 @@ export const OrthorectificationView: React.FC<TabComponentProps> = ({
       }
     }
     setLoading(true);
+
+    // update natural coordinates of gcpPoints
+    Object.entries(gcpPoints).forEach(([key, point]) => {
+      point.x_natural = (point.x / session.homeView.scaledWidth) * session.homeView.originalWidth;
+      point.y_natural = (point.y / session.homeView.scaledHeight) * session.homeView.originalHeight;
+      gcpPoints[key] = point;
+    });
 
     try {
       const out_gcps = Object.entries(gcpPoints).map(([, point]) => [
@@ -102,6 +110,7 @@ export const OrthorectificationView: React.FC<TabComponentProps> = ({
         handleNextRoot();
       };
       img.src = imageUrl;
+      setSessionGcpPoints(gcpPoints);
     } catch (error) {
       console.error("Error during fetch:", error);
       alert("An error occurred while processing the request.");

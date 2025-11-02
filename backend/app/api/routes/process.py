@@ -330,7 +330,6 @@ async def parse_to_modbus(
 ) -> FileResponse:
     """Parse YAML content and convert it to Modbus format."""
     # Convert yaml to awive config
-    print(f"{yaml_content}")
     awive_config = AwiveConfig(**yaml.safe_load(yaml_content))
     config_values = extract_awive_config_values(awive_config)
     # save to a txt file

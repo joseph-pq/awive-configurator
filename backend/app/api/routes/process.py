@@ -1,4 +1,7 @@
 from fastapi import APIRouter, UploadFile, File, Depends
+from typing import Any
+import struct
+import yaml
 import numpy as np
 from typing import AsyncGenerator
 import json
@@ -10,12 +13,14 @@ from pathlib import Path
 import tempfile
 from awive.loader import Loader, make_loader
 from awive.config import (
+    Config as AwiveConfig,
     Dataset as DatasetConfig,
     ConfigGcp,
     PreProcessing as PreProcessingConfig,
     ImageCorrection,
 )
 
+AWIVE_REG_COUNT = 130
 router = APIRouter(prefix="/process", tags=["process"])
 CAMERA_CONFIGS = {
     "cameraA": {
@@ -233,4 +238,107 @@ async def apply_distortion_correction(
         "out.png",
         media_type="image/png",
         filename="processed_image.png",
+    )
+
+
+def float32_to_registers(value: float) -> list[int]:
+    """Convert 32-bit float to two 16-bit registers (big endian).
+
+    Args:
+        value: Float value to convert
+
+    Returns:
+        List containing two 16-bit register values
+    """
+    packed = struct.pack(">f", float(value))
+    # Unpack into two 16-bit unsigned integers.
+    reg1, reg2 = struct.unpack(">HH", packed)
+    return [reg1, reg2]
+
+
+def flatten_mixed_list(input_list: list | tuple) -> list:
+    """Recursively flatten nested lists and tuples into single list.
+
+    Args:
+        input_list: List containing nested lists/tuples
+
+    Returns:
+        Flattened list with all nested elements
+    """
+    flattened = []
+    for element in input_list:
+        if isinstance(element, list | tuple):
+            # Recursively flatten nested lists/tuples
+            flattened.extend(flatten_mixed_list(element))
+        else:
+            # Add non-iterable elements directly
+            flattened.append(element)
+    return flattened
+
+
+def extract_awive_config_values(
+    awive_config: AwiveConfig,
+) -> list[float]:
+    """Extract configuration values from AWIVE config into flat list of floats.
+
+    Args:
+        awive_config: AWIVE configuration object
+
+    Returns:
+        List of float values extracted from config
+    """
+    result: list[Any] = [awive_config.dataset.gcp.apply]
+
+    if awive_config.dataset.gcp.distances is None:
+        result = [*result, 0, 0, 0, 0, 0, 0]
+    else:
+        result = result + list(awive_config.dataset.gcp.distances.values())
+
+    result = result + awive_config.dataset.gcp.meters
+    result = result + awive_config.dataset.gcp.pixels
+
+    result = [
+        *result,
+        awive_config.otv.lines_width,
+        awive_config.preprocessing.image_correction.apply,
+        awive_config.preprocessing.image_correction.c,
+        awive_config.preprocessing.image_correction.f,
+        awive_config.preprocessing.image_correction.k1,
+        awive_config.preprocessing.ppm,
+        awive_config.preprocessing.pre_roi,
+        awive_config.preprocessing.resolution,
+        awive_config.preprocessing.roi,
+        awive_config.preprocessing.rotate_image,
+        awive_config.water_flow.area,
+        awive_config.water_flow.profile.height,
+        *[
+            coord
+            for depth in awive_config.water_flow.profile.depths
+            for coord in (depth.x, depth.y, depth.z)
+        ],
+    ]
+
+    # Extract all subsets into a flat list
+    result = flatten_mixed_list(result)
+    result = [float32_to_registers(float(v)) for v in result]
+    return flatten_mixed_list(result)
+
+
+@router.post("/modbus/")
+async def parse_to_modbus(
+    yaml_content: str = Form(...),
+) -> FileResponse:
+    """Parse YAML content and convert it to Modbus format."""
+    # Convert yaml to awive config
+    print(f"{yaml_content}")
+    awive_config = AwiveConfig(**yaml.safe_load(yaml_content))
+    config_values = extract_awive_config_values(awive_config)
+    # save to a txt file
+    with open("modbus_config.txt", "w") as f:
+        for value in config_values:
+            f.write(f"{value}\n")
+    return FileResponse(
+        "modbus_config.txt",
+        media_type="text/plain",
+        filename="modbus_config.txt",
     )

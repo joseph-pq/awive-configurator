@@ -183,3 +183,4 @@ pyrightconfig.json
 out.png
 backend/*.png
 .env.*
+backend/*.txt

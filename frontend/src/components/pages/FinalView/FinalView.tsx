@@ -1,4 +1,5 @@
 import React, { useContext } from "react";
+import { API_URL } from "../../../constants/api";
 import { ImageControls } from "../../features/ImageControls/ImageControls";
 import { Button, Container, Typography, Paper, Box } from "@mui/material";
 import { ImagesContext } from "../../../contexts/images";
@@ -8,7 +9,7 @@ import { TabComponentProps } from "@/types/tabs";
 
 const getImageCorrection = (cameraModel: string) => {
   if (cameraModel === "cameraA") {
-    return `apply: true
+    return `    apply: true
     c: 2
     f: 8.0
     k1: -9.999999747378752e-06
@@ -57,8 +58,7 @@ export const FinalView: React.FC<TabComponentProps> = ({ handlePrev }) => {
 
     return `
 dataset:
-  image_correction:
-${imageCorrection}
+  video_fp: ""
   gcp:
     apply: true  # do not change
     video_fp: /some/file/that/does/not/care.mp4  # do not change
@@ -72,12 +72,14 @@ ${imageCorrection}
     - - ${r(gcpPoints[3].x)}
       - ${r(gcpPoints[3].y)}
     distances:
-      "0,1": ${distanceDict["0,1"]}
-      "0,2": ${distanceDict["0,2"]}
-      "0,3": ${distanceDict["0,3"]}
-      "1,2": ${distanceDict["1,2"]}
-      "1,3": ${distanceDict["1,3"]}
-      "2,3": ${distanceDict["2,3"]}
+      "(0,1)": ${distanceDict["0,1"]}
+      "(0,2)": ${distanceDict["0,2"]}
+      "(0,3)": ${distanceDict["0,3"]}
+      "(1,2)": ${distanceDict["1,2"]}
+      "(1,3)": ${distanceDict["1,3"]}
+      "(2,3)": ${distanceDict["2,3"]}
+otv:
+  lines_width: 80
 preprocessing:
   ppm: 262  # do not change
   rotate_image: ${config.rotation}
@@ -91,12 +93,17 @@ preprocessing:
     - ${r(config.crop.y1)}
   - - ${r(config.crop.x2)}
     - ${r(config.crop.y2)}
+  image_correction:
+${imageCorrection}
 water_flow:
+  area: 0
   profile:
+    height: 0
+    depths:
 ${session.depths
         .map(
           ({ x, y, depth }) =>
-            `    - x: ${r(x)}\n      y: ${r(y)}\n      z: ${depth}`
+            `      - x: ${r(x)}\n        y: ${r(y)}\n        z: ${depth}`
         )
         .join("\n")}
 `;
@@ -175,6 +182,32 @@ ${session.depths
   const yamlContent = generateYamlContent(session);
   const colorizedYaml = colorizeYaml(yamlContent);
 
+  const downloadModbus = async () => {
+    // request to backend to convert and download
+    const formData = new FormData();
+    formData.append("yaml_content", yamlContent);
+
+    const response = await fetch(`${API_URL}/process/modbus/`, {
+      method: "POST",
+      body: formData,
+    })
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+    const newYaml = await response.text();
+
+    // Download the new YAML
+    const blob = new Blob([newYaml], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "config_modbus.txt";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
   const downloadYaml = () => {
     const blob = new Blob([yamlContent], { type: "text/yaml" });
     const url = URL.createObjectURL(blob);
@@ -227,9 +260,14 @@ ${session.depths
           {colorizedYaml}
         </Box>
       </Paper>
-      <Button variant="contained" color="primary" onClick={downloadYaml}>
-        Download YAML
-      </Button>
+      <Container sx={{ display: "flex", gap: 2, justifyContent: "center" }}>
+        <Button variant="contained" color="primary" onClick={downloadYaml}>
+          Download YAML
+        </Button>
+        <Button variant="contained" color="primary" onClick={downloadModbus}>
+          Download as Modbus compatible
+        </Button>
+      </Container>
     </Container>
   );
 };

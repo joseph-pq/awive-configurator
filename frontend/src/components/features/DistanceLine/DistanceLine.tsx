@@ -26,7 +26,6 @@ export const DistanceLine: React.FC<DistanceLineProps> = ({ distance, points, on
         points={[point1.x, point1.y, point2.x, point2.y]}
         stroke="yellow"
         strokeWidth={4}
-        onClick={onClick}
       />
       <Circle
         x={midpoint.x}
@@ -36,7 +35,7 @@ export const DistanceLine: React.FC<DistanceLineProps> = ({ distance, points, on
         stroke="white"
         strokeWidth={1}
         perfectDrawEnabled={false}
-        listening={false}
+        onClick={onClick}
       />
       <Text
         x={midpoint.x - 30}
@@ -53,4 +52,4 @@ export const DistanceLine: React.FC<DistanceLineProps> = ({ distance, points, on
       />
     </>
   );
-}; 
+};

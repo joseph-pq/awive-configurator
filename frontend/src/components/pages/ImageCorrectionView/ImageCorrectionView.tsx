@@ -12,7 +12,7 @@ export const ImageCorrectionView: React.FC<TabComponentProps> = ({
   handleNext: handleNextRoot,
   handlePrev,
 }) => {
-  const [selectedCamera, setSelectedCamera] = useState("cameraA");
+  const [selectedCamera, setSelectedCamera] = useState("cameraNone");
   const context = useContext(ImagesContext);
   const [loading, setLoading] = useState<boolean>(false);
   const computeImageDimensionsCB = useCallback(computeImageDimensions, []);
@@ -24,6 +24,17 @@ export const ImageCorrectionView: React.FC<TabComponentProps> = ({
   const handleNext = async () => {
     if (!image) {
       alert("Please upload an image");
+      return;
+    }
+    if (selectedCamera === "cameraNone") {
+      // Proceed without undistortion
+      setSession({
+        ...session,
+        undistortView: session.homeView,
+        cameraModel: selectedCamera,
+      });
+      setImgSrcUndistorted(image.src);
+      handleNextRoot();
       return;
     }
     setLoading(true);
@@ -69,6 +80,7 @@ export const ImageCorrectionView: React.FC<TabComponentProps> = ({
           onChange={(event) => setSelectedCamera(event.target.value)}
           sx={{ mb: 2 }}
         >
+          <MenuItem value="cameraNone">Unknown Camera</MenuItem>
           <MenuItem value="cameraA">Camera Model A</MenuItem>
         </Select>
         <ImageControls

@@ -30,7 +30,7 @@ const getImageCorrection = (cameraModel: string) => {
         - -0.2349399150200533`;
   }
   // Default or unknown camera model
-  return `apply: false`;
+  return `    apply: false`;
 }
 
 export const FinalView: React.FC<TabComponentProps> = ({ handlePrev }) => {

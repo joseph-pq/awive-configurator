@@ -63,14 +63,14 @@ dataset:
     apply: true  # do not change
     video_fp: /some/file/that/does/not/care.mp4  # do not change
     pixels:
-    - - ${r(gcpPoints[0].x)}
-      - ${r(gcpPoints[0].y)}
-    - - ${r(gcpPoints[1].x)}
-      - ${r(gcpPoints[1].y)}
-    - - ${r(gcpPoints[2].x)}
-      - ${r(gcpPoints[2].y)}
-    - - ${r(gcpPoints[3].x)}
-      - ${r(gcpPoints[3].y)}
+    - - ${r(gcpPoints[0].x_natural)}
+      - ${r(gcpPoints[0].y_natural)}
+    - - ${r(gcpPoints[1].x_natural)}
+      - ${r(gcpPoints[1].y_natural)}
+    - - ${r(gcpPoints[2].x_natural)}
+      - ${r(gcpPoints[2].y_natural)}
+    - - ${r(gcpPoints[3].x_natural)}
+      - ${r(gcpPoints[3].y_natural)}
     distances:
       "(0,1)": ${distanceDict["0,1"]}
       "(0,2)": ${distanceDict["0,2"]}
@@ -84,15 +84,15 @@ preprocessing:
   ppm: 262  # do not change
   rotate_image: ${config.rotation}
   pre_roi:
-  - - ${r(config.preCrop.x1)}
-    - ${r(config.preCrop.y1)}
-  - - ${r(config.preCrop.x2)}
-    - ${r(config.preCrop.y2)}
+  - - ${r(config.preCrop.x1Natural)}
+    - ${r(config.preCrop.y1Natural)}
+  - - ${r(config.preCrop.x2Natural)}
+    - ${r(config.preCrop.y2Natural)}
   roi:
-  - - ${r(config.crop.x1)}
-    - ${r(config.crop.y1)}
-  - - ${r(config.crop.x2)}
-    - ${r(config.crop.y2)}
+  - - ${r(config.crop.x1Natural)}
+    - ${r(config.crop.y1Natural)}
+  - - ${r(config.crop.x2Natural)}
+    - ${r(config.crop.y2Natural)}
   image_correction:
 ${imageCorrection}
 water_flow:

@@ -320,6 +320,7 @@ def extract_awive_config_values(
 
     # Extract all subsets into a flat list
     result = flatten_mixed_list(result)
+    result = [0 if v is None else v for v in result]  # replace None with 0
     result = [float32_to_registers(float(v)) for v in result]
     return flatten_mixed_list(result)
 

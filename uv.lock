@@ -41,16 +41,16 @@ wheels = [
 
 [[package]]
 name = "awive"
-version = "3.2.2"
+version = "3.3.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "numpy" },
     { name = "opencv-python" },
     { name = "pydantic" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/88/bf/88e321f4451bc46c6b58036f8c1deca68c9aa240d5409312c63e89114a24/awive-3.2.2.tar.gz", hash = "sha256:1fefcdbd92a9da68b74fa373ddc956be8e3ebbf86e94567407067c079b67d63e", size = 31352, upload-time = "2025-10-11T20:26:01.835Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/e6/7f/d5105a11ce8467e32d06b2fa2a077efe9c4cd3bd192863698b7be88c795e/awive-3.3.1.tar.gz", hash = "sha256:ab7cc409c64e42d143811ce1e512d443e2175c9146255d66a9db1d45f47ff67b", size = 31834, upload-time = "2025-11-15T18:25:12.74Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/a3/82/9bcd2414c86e60feccaf7f0bec98024a0c8e537e0e5ae6203c469c180d9f/awive-3.2.2-py3-none-any.whl", hash = "sha256:f92f193450772f39e94fa3063df02f3d5a1fb284a93ec56ea6c949e805d5e2b7", size = 39605, upload-time = "2025-10-11T20:26:00.824Z" },
+    { url = "https://files.pythonhosted.org/packages/f2/20/21b62f154b4fdb639d8d9c1acd7d106c9d5d4891fac0b6dd3df639bcbfbe/awive-3.3.1-py3-none-any.whl", hash = "sha256:c93d38a8eb276cd594d2a6ebaeed96872a5245d1a0382c32b565f189f1d420a3", size = 40039, upload-time = "2025-11-15T18:25:11.674Z" },
 ]
 
 [[package]]
@@ -81,7 +81,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "awive", specifier = ">=3.2.2" },
+    { name = "awive", specifier = ">=3.3.1" },
     { name = "python-multipart", specifier = ">=0.0.20" },
     { name = "scipy", specifier = ">=1.15.2" },
     { name = "typer", specifier = ">=0.15.2" },

@@ -219,7 +219,7 @@ export const RiverProfileView: React.FC<TabComponentProps> = ({
             value={numPoints}
             onChange={(_, value) => setNumPoints(value as number)}
             min={2}
-            max={15}
+            max={20}
             step={1}
             marks
             valueLabelDisplay="auto"

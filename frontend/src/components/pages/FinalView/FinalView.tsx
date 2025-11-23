@@ -58,10 +58,9 @@ export const FinalView: React.FC<TabComponentProps> = ({ handlePrev }) => {
 
     return `
 dataset:
-  video_fp: ""
+  video_fp: /some/file/that/does/not/care.mp4  # do not change
   gcp:
     apply: true  # do not change
-    video_fp: /some/file/that/does/not/care.mp4  # do not change
     pixels:
     - - ${r(gcpPoints[0].x_natural)}
       - ${r(gcpPoints[0].y_natural)}
@@ -84,15 +83,15 @@ preprocessing:
   ppm: 262  # do not change
   rotate_image: ${config.rotation}
   pre_roi:
-  - - ${r(config.preCrop.x1Natural)}
-    - ${r(config.preCrop.y1Natural)}
-  - - ${r(config.preCrop.x2Natural)}
-    - ${r(config.preCrop.y2Natural)}
+  - - ${r(config.preCrop.y1Natural)}
+    - ${r(config.preCrop.x1Natural)}
+  - - ${r(config.preCrop.y2Natural)}
+    - ${r(config.preCrop.x2Natural)}
   roi:
-  - - ${r(config.crop.x1Natural)}
-    - ${r(config.crop.y1Natural)}
-  - - ${r(config.crop.x2Natural)}
-    - ${r(config.crop.y2Natural)}
+  - - ${r(config.crop.y1Natural)}
+    - ${r(config.crop.x1Natural)}
+  - - ${r(config.crop.y2Natural)}
+    - ${r(config.crop.x2Natural)}
   image_correction:
 ${imageCorrection}
 water_flow:

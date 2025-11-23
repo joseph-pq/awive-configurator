@@ -82,7 +82,12 @@ export const OrthorectificationView: React.FC<TabComponentProps> = ({
         out_distances[key] = dist.distance;
       });
       const formData = new FormData();
-      formData.append("file", session.file as Blob);
+      if (!imageUndistorted) {
+        throw new Error("No orthorectified image available");
+      }
+      const imgResponse = await fetch(imageUndistorted.src);
+      const imgBlob = await imgResponse.blob();
+      formData.append("file", imgBlob, "undistorted_image.png");
       formData.append("gcps", JSON.stringify(out_gcps));
       formData.append("distances", JSON.stringify(out_distances));
 

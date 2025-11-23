@@ -80,7 +80,7 @@ dataset:
 otv:
   lines_width: 80
 preprocessing:
-  ppm: 262  # do not change
+  ppm: 100  # do not change
   rotate_image: ${config.rotation}
   pre_roi:
   - - ${r(config.preCrop.y1Natural)}

@@ -75,5 +75,6 @@ export interface Session {
   rotation: number;
   rotationScale: number;
   depths: ProfilePoint[];
+  height: number;
   cameraModel: string;
 }

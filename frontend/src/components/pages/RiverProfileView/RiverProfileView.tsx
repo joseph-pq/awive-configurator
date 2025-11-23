@@ -54,6 +54,7 @@ export const RiverProfileView: React.FC<TabComponentProps> = ({
   const [validPoints, setValidPoints] = useState<Record<number, boolean>>(
     Object.fromEntries(session.depths.map((point, index) => [index, true]))
   );
+  const [localHeight, setLocalHeight] = useState<number>(session.height || 0);
 
   // Handle clicking to place line points
   const handleMouseDown = (e: KonvaEventObject<MouseEvent>) => {
@@ -94,6 +95,16 @@ export const RiverProfileView: React.FC<TabComponentProps> = ({
     }
     setProfilePoints(newProfilePoints);
   }, [endpoints, numPoints]);
+
+  // Handle height input changes
+  const handleHeightWrite = (value: string) => {
+    console.log("Height input value:", Number(value));
+    setLocalHeight(Number(value));
+    setSession({
+      ...session,
+      height: Number(value)
+    });
+  }
 
   // Handle depth input changes
   const handleDepthWrite = (index: number, value: string) => {
@@ -228,6 +239,22 @@ export const RiverProfileView: React.FC<TabComponentProps> = ({
         </Box>
         {Object.keys(profilePoints).length > 0 && (
           <Box>
+            <Box sx={{ mb: 2 }}>
+              <Typography variant="body2">
+                Height:
+              </Typography>
+              <TextField
+                fullWidth
+                size="small"
+                type="number"
+                value={localHeight}
+                onChange={(e) => handleHeightWrite(e.target.value)}
+                placeholder="Enter distance"
+                InputProps={{
+                  endAdornment: <Typography variant="body2">m</Typography>,
+                }}
+              />
+            </Box>
             <Typography variant="subtitle1" gutterBottom>
               Enter distances between points:
             </Typography>

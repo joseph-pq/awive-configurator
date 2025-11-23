@@ -97,7 +97,7 @@ ${imageCorrection}
 water_flow:
   area: 0
   profile:
-    height: 0
+    height: ${config.height}
     depths:
 ${session.depths
         .map(

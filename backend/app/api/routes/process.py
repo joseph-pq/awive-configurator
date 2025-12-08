@@ -1,24 +1,29 @@
-from fastapi import APIRouter, UploadFile, File, Depends
-from typing import Any
-import struct
-import yaml
-import numpy as np
-from typing import AsyncGenerator
 import json
-import cv2
-from fastapi.responses import FileResponse
-from awive.preprocess.correct_image import Formatter
-from fastapi import Form
-from pathlib import Path
+import struct
 import tempfile
-from awive.loader import Loader, make_loader
+from pathlib import Path
+from typing import Any, AsyncGenerator
+
+import cv2
+import numpy as np
+import yaml
 from awive.config import (
     Config as AwiveConfig,
-    Dataset as DatasetConfig,
+)
+from awive.config import (
     ConfigGcp,
-    PreProcessing as PreProcessingConfig,
     ImageCorrection,
 )
+from awive.config import (
+    Dataset as DatasetConfig,
+)
+from awive.config import (
+    PreProcessing as PreProcessingConfig,
+)
+from awive.loader import Loader, make_loader
+from awive.preprocess.correct_image import Formatter
+from fastapi import APIRouter, Depends, File, Form, UploadFile
+from fastapi.responses import FileResponse
 
 AWIVE_REG_COUNT = 130
 router = APIRouter(prefix="/process", tags=["process"])
@@ -116,7 +121,12 @@ async def crop_image(
     image = cv2.imread(str(image_fp))
     if image is None:
         raise ValueError("No image found")
-    x1_, y1_, x2_, y2_ = int(float(x1)), int(float(y1)), int(float(x2)), int(float(y2))
+    x1_, y1_, x2_, y2_ = (
+        int(float(x1)),
+        int(float(y1)),
+        int(float(x2)),
+        int(float(y2)),
+    )
     cropped_image = image[y1_:y2_, x1_:x2_]
     cv2.imwrite("cropped_image.png", cropped_image)
     return FileResponse(
@@ -285,7 +295,8 @@ def extract_awive_config_values(
         awive_config: AWIVE configuration object
 
     Returns:
-        List of float values extracted from config
+        List of integer register values extracted from config
+
     """
     result: list[Any] = [awive_config.dataset.gcp.apply]
 
@@ -304,12 +315,15 @@ def extract_awive_config_values(
         awive_config.preprocessing.image_correction.c,
         awive_config.preprocessing.image_correction.f,
         awive_config.preprocessing.image_correction.k1,
+        awive_config.preprocessing.image_correction.camera_matrix,
+        awive_config.preprocessing.image_correction.dist_coeffs,
         awive_config.preprocessing.ppm,
         awive_config.preprocessing.pre_roi,
         awive_config.preprocessing.resolution,
         awive_config.preprocessing.roi,
         awive_config.preprocessing.rotate_image,
         awive_config.water_flow.area,
+        awive_config.water_flow.roughness,
         awive_config.water_flow.profile.height,
         *[
             coord
@@ -320,7 +334,7 @@ def extract_awive_config_values(
 
     # Extract all subsets into a flat list
     result = flatten_mixed_list(result)
-    result = [0 if v is None else v for v in result]  # replace None with 0
+    # Convert to registers
     result = [float32_to_registers(float(v)) for v in result]
     return flatten_mixed_list(result)
 
